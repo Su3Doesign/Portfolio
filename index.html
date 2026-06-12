@@ -1,0 +1,394 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#05080F">
+<meta name="description" content="Amidyala Sai Sumanth — 3D environment artist. A portfolio that runs on solar time: one day, traversed by scroll.">
+<meta property="og:title" content="Amidyala Sai Sumanth — 3D Environment Artist">
+<meta property="og:description" content="MERIDIAN — a portfolio that runs on solar time. Worlds built by deciding where the light goes.">
+<meta property="og:type" content="website">
+<title>Amidyala Sai Sumanth — 3D Environment Artist · MERIDIAN</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body data-phase="night">
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <filter id="liquid-glass" x="0%" y="0%" width="100%" height="100%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.05 0.05" numOctaves="1" seed="1" result="turbulence"/>
+      <feGaussianBlur in="turbulence" stdDeviation="2" result="blurredNoise"/>
+      <feDisplacementMap in="SourceGraphic" in2="blurredNoise" scale="26" xChannelSelector="R" yChannelSelector="B" result="displaced"/>
+      <feGaussianBlur in="displaced" stdDeviation="3"/>
+    </filter>
+  </defs>
+</svg>
+
+<div class="loader" id="loader" aria-hidden="true">
+  <div class="loader-core">
+    <div class="loader-row mono"><span>MERIDIAN.scene</span><span id="loaderPct">0%</span></div>
+    <div class="loader-bar"><span id="loaderFill"></span></div>
+    <div class="loader-row mono dim"><span id="loaderMsg">linking sky…</span><span>AMIDYALA SAI SUMANTH</span></div>
+  </div>
+</div>
+
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="wx" aria-hidden="true"></canvas>
+<div id="flash" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+
+<div class="cur-ring" aria-hidden="true"></div>
+<div class="cur-dot" aria-hidden="true"></div>
+
+<header class="hud">
+  <a class="hud-mark" href="#top" data-magnetic>
+    <span class="mark-main">SUMANTH</span><span class="mark-sup">®</span>
+  </a>
+  <nav class="hud-nav">
+    <a href="#roman" data-magnetic>Work</a>
+    <a href="#process" data-magnetic>Practice</a>
+    <a href="#clients" data-magnetic>Clients</a>
+    <a href="#contact" data-magnetic>Contact</a>
+  </nav>
+  <div class="hud-right">
+    <button class="wx-pill mono" id="wxPill" aria-label="Change weather">
+      <span id="wxLabel">✦ CLEAR</span>
+    </button>
+    <input type="range" id="hueSlide" min="0" max="360" value="200" aria-label="Lightning hue">
+    <div class="hud-solar mono" aria-hidden="true">
+      <svg class="solar-dial" viewBox="0 0 44 24">
+        <path d="M 2 22 A 20 20 0 0 1 42 22" fill="none" stroke="currentColor" stroke-width="1" opacity=".35"/>
+        <circle id="solarDot" cx="2" cy="22" r="2.4" fill="currentColor"/>
+      </svg>
+      <span id="solarClock">23:58</span>
+    </div>
+  </div>
+</header>
+<button class="totop mono" id="toTop" aria-label="Back to top">↑</button>
+<div class="progress" id="progressBar" aria-hidden="true"></div>
+
+<main id="top">
+
+<section class="hero" id="hero" data-hour="23:58" data-theme="night">
+  <div class="hero-eyebrow mono reveal">
+    <span class="tick"></span>3D ENVIRONMENT ARTIST · HYDERABAD, IN · 17.38°N 78.48°E
+  </div>
+
+  <h1 class="hero-name">
+    <span class="hero-first serif-i" data-split>Amidyala Sai</span>
+    <span class="hero-last" data-split-chars>SUMANTH</span>
+  </h1>
+
+  <p class="hero-line reveal">I build worlds by deciding <em class="serif-i">where the light goes.</em></p>
+
+  <div class="hero-foot">
+    <div class="hero-foot-l mono reveal">SCROLL — <em>the sun is about to rise</em></div>
+    <a class="pill reveal" href="#contact" data-magnetic>
+      <span class="pill-dot"></span>OPEN FOR COMMISSIONS &amp; COLLABORATIONS
+    </a>
+  </div>
+</section>
+
+<section class="mani" id="manifesto" data-hour="04:47" data-theme="night">
+  <div class="mani-pin">
+    <div class="mani-track" id="maniTrack">
+      <article class="frag">
+        <span class="frag-no mono">01 / ORIGIN</span>
+        <h3>Built in <em class="serif-i">Hyderabad.</em></h3>
+        <p>A practice that learned light from late afternoons and color from old paper.</p>
+      </article>
+      <article class="frag">
+        <span class="frag-no mono">02 / PRACTICE</span>
+        <h3>Bridging <em class="serif-i">design</em> &amp; <em class="serif-i">interactive code.</em></h3>
+        <p>Maya, ZBrush, Substance, Arnold, Unreal — and a refusal to render anything that doesn’t earn its frame.</p>
+      </article>
+      <article class="frag">
+        <span class="frag-no mono">03 / VOICE</span>
+        <h3>Worlds, <em class="serif-i">worn-in.</em></h3>
+        <p>Cracks where someone has put their hand a thousand times. Light that has somewhere to be by 4&nbsp;PM.</p>
+      </article>
+      <article class="frag">
+        <span class="frag-no mono">04 / NOW</span>
+        <h3>Available for <em class="serif-i">collaborations.</em></h3>
+        <p>Open to commission, full-time, and collaboration — wherever the work is good.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<section class="case" id="roman" data-hour="05:42" data-theme="night">
+  <header class="case-head">
+    <div class="case-hour mono reveal"><span class="tick"></span>05:42 — DAWN · PROJECT 01</div>
+    <h2 class="case-title" data-split-chars data-wave>Rōman no Yoake</h2>
+    <div class="case-jp serif-i reveal">浪漫の夜明け — pagoda, dawn, distance</div>
+    <div class="case-cols">
+      <p class="case-desc reveal">A pagoda at the hour before the world is awake. The sea hasn’t started speaking yet. Held in the palette of held breath.</p>
+      <ul class="case-stack mono reveal">
+        <li>MAYA · ARNOLD</li><li>SUBSTANCE · AFTER EFFECTS</li><li>2025 · PERSONAL</li>
+      </ul>
+    </div>
+  </header>
+  <div class="frames">
+    <figure class="frame fw" data-plx>
+      <img src="assets/images/japa-render-1.webp" alt="Rōman no Yoake — pagoda silhouette at dawn" loading="lazy" onerror="phFail(this)">
+      <figcaption class="mono">01 · HERO — japa-render-1.webp</figcaption>
+    </figure>
+    <figure class="frame fh" data-plx>
+      <img src="assets/images/japa-render-2.webp" alt="Pagoda close, flowering branch" loading="lazy" onerror="phFail(this)">
+      <figcaption class="mono">02 · PAGODA — japa-render-2.webp</figcaption>
+    </figure>
+    <figure class="frame fh" data-plx>
+      <video src="assets/videos/Japa-Turntable-1.mp4" autoplay muted loop playsinline onerror="phFail(this)"></video>
+      <figcaption class="mono">03 · TURNTABLE — Japa-Turntable-1.mp4</figcaption>
+    </figure>
+    <figure class="frame fh" data-plx>
+      <video src="assets/videos/Japa-Panningshot-2.mp4" autoplay muted loop playsinline onerror="phFail(this)"></video>
+      <figcaption class="mono">04 · PAN — Japa-Panningshot-2.mp4</figcaption>
+    </figure>
+    <figure class="frame fh" data-plx>
+      <img src="assets/images/japa-render-4.webp" alt="Pagoda alternate angle" loading="lazy" onerror="phFail(this)">
+      <figcaption class="mono">05 · ALT — japa-render-4.webp</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="process" id="process" data-hour="09:30" data-theme="day">
+  <div class="proc-head">
+    <div class="case-hour mono reveal"><span class="tick"></span>09:30 — MORNING · THE PRACTICE</div>
+    <h2 data-split>Each scene, thought through in <em class="serif-i">seven moves.</em></h2>
+  </div>
+  <ol class="pipeline" id="pipeline">
+    <li><span class="p-num mono">01</span><span class="p-name">Reference</span><span class="p-sub serif-i">look longer than is comfortable</span></li>
+    <li><span class="p-num mono">02</span><span class="p-name">Blockout</span><span class="p-sub serif-i">the world in grey, honest</span></li>
+    <li><span class="p-num mono">03</span><span class="p-name">Hard-surface</span><span class="p-sub serif-i">edges that mean something</span></li>
+    <li><span class="p-num mono">04</span><span class="p-name">Sculpt</span><span class="p-sub serif-i">where hands have been</span></li>
+    <li><span class="p-num mono">05</span><span class="p-name">Texture</span><span class="p-sub serif-i">a working life, kept</span></li>
+    <li><span class="p-num mono">06</span><span class="p-name">Light</span><span class="p-sub serif-i">the only honest narrator</span></li>
+    <li><span class="p-num mono">07</span><span class="p-name">Comp</span><span class="p-sub serif-i">then take half of it away</span></li>
+  </ol>
+</section>
+
+<div class="marquee" data-mq aria-hidden="true">
+  <div class="mq-track mono">WORLDS, WORN-IN&nbsp;&nbsp;✦&nbsp;&nbsp;LIGHT FIRST&nbsp;&nbsp;✦&nbsp;&nbsp;BUILT IN HYDERABAD&nbsp;&nbsp;✦&nbsp;&nbsp;3D ENVIRONMENTS&nbsp;&nbsp;✦&nbsp;&nbsp;</div>
+</div>
+
+<section class="clients" id="clients" data-hour="13:00" data-theme="day">
+  <div class="clients-head">
+    <div class="case-hour mono reveal"><span class="tick"></span>13:00 — MIDDAY · CLIENT WORK</div>
+    <h2 data-split>Across <em class="serif-i">agencies, studios</em> &amp; freelance.</h2>
+    <p class="clients-sub reveal">Through The Classic Partnership Inc. (Toronto, 2025): Midea Canada and its sub-brands — Eureka, Pelonis, RAC, Z_Comfee — plus KD Displays, Home Depot Canada, GC Burger, Investohome Puerto Rico and Amaya Restaurant. Studio work with VS Design Studio. Independent freelance: AZ Coffee, LLT Overseas, nxtwave, Tamada Media, Lakshmi Bakers, Inertia Productions.</p>
+    <div class="rails-hint mono reveal">DRAG A ROW → · CLICK ANY CARD TO EXPAND</div>
+  </div>
+  <div class="rails" id="rails"></div>
+</section>
+
+<section class="philo" id="philosophy" data-hour="16:00" data-theme="gold">
+  <div class="philo-halo" id="philoHalo" aria-hidden="true"></div>
+  <div class="case-hour mono reveal"><span class="tick"></span>16:00 — GOLDEN HOUR · THE PHILOSOPHY</div>
+  <h2 class="giant" id="giant" data-split-chars>LIGHT.</h2>
+  <p class="philo-sub serif-i reveal">“The work is not in the rendering. The work is in deciding what deserves to be rendered — and at what hour of the day. Worlds are made of choices. Light, longest of all, is a choice.”</p>
+</section>
+
+<section class="case" id="fudo" data-hour="17:48" data-theme="night">
+  <header class="case-head">
+    <div class="case-hour mono reveal"><span class="tick"></span>17:48 — DUSK · PROJECT 02</div>
+    <h2 class="case-title" data-split-chars data-wave>Fudō Myō-ō</h2>
+    <div class="case-jp serif-i reveal">不動明王 — temple, foxes, the hour the candles take over</div>
+    <div class="case-cols">
+      <p class="case-desc reveal">A small Buddhist shrine at the hour the candles take over. The foxes wait without expectation. The kind of place that knows you’ll be back.</p>
+      <ul class="case-stack mono reveal">
+        <li>MAYA · ARNOLD</li><li>ZBRUSH · SUBSTANCE</li><li>2025 · PERSONAL</li>
+      </ul>
+    </div>
+  </header>
+  <div class="frames">
+    <figure class="frame fw" data-plx>
+      <img src="assets/images/fudomyo-render-1.webp" alt="Fudō Myō-ō hero render — temple with foxes at dusk" loading="lazy" onerror="phFail(this)">
+      <figcaption class="mono">01 · HERO — fudomyo-render-1.webp</figcaption>
+    </figure>
+    <figure class="frame fh" data-plx>
+      <video src="assets/videos/Fudomyo-Turntable-1.mp4" autoplay muted loop playsinline onerror="phFail(this)"></video>
+      <figcaption class="mono">02 · TURNTABLE — Fudomyo-Turntable-1.mp4</figcaption>
+    </figure>
+    <figure class="frame fh" data-plx>
+      <img src="assets/images/fudomyo-render-2.webp" alt="Fudō Myō-ō close detail" loading="lazy" onerror="phFail(this)">
+      <figcaption class="mono">03 · DETAIL — fudomyo-render-2.webp</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="case" id="koi" data-hour="21:12" data-theme="night">
+  <header class="case-head">
+    <div class="case-hour mono reveal"><span class="tick"></span>21:12 — NIGHT · PROJECT 03</div>
+    <h2 class="case-title" data-split-chars data-wave>Koi Pond</h2>
+    <div class="case-jp serif-i reveal">錦鯉の池 — bioluminescence, autumn, water</div>
+    <div class="case-cols">
+      <p class="case-desc reveal">A pond that knows the colors of every season it has held. The koi keep their own time. Light comes from inside the water, not above it.</p>
+      <ul class="case-stack mono reveal">
+        <li>MAYA · ARNOLD</li><li>SUBSTANCE · PHOTOSHOP</li><li>2024 · PERSONAL</li>
+      </ul>
+    </div>
+  </header>
+  <div class="frames">
+    <figure class="frame fw" data-plx>
+      <img src="assets/images/koipond-render-1.webp" alt="Koi Pond — bioluminescent night scene" loading="lazy" onerror="phFail(this)">
+      <figcaption class="mono">01 · NIGHT — koipond-render-1.webp</figcaption>
+    </figure>
+    <figure class="frame fh" data-plx>
+      <img src="assets/images/koipond-render-2.webp" alt="Koi Pond caustic light" loading="lazy" onerror="phFail(this)">
+      <figcaption class="mono">02 · CAUSTIC — koipond-render-2.webp</figcaption>
+    </figure>
+    <figure class="frame fh" data-plx>
+      <img src="assets/images/koipond-render-3.webp" alt="Koi Pond autumn render" loading="lazy" onerror="phFail(this)">
+      <figcaption class="mono">03 · AUTUMN — koipond-render-3.webp</figcaption>
+    </figure>
+    <figure class="frame fw" data-plx>
+      <img src="assets/images/koipond-render-4.webp" alt="Koi Pond detail" loading="lazy" onerror="phFail(this)">
+      <figcaption class="mono">04 · DETAIL — koipond-render-4.webp</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="archive" id="archive" data-hour="22:30" data-theme="night">
+  <div class="case-hour mono reveal"><span class="tick"></span>22:30 — THE ARCHIVE</div>
+  <h2 data-split><em class="serif-i">Smaller pieces,</em> kept for the breadth.</h2>
+  <div class="bento">
+    <a class="tile t22" data-lb><img src="assets/images/op-perfume-1.webp" alt="OP Perfume 3D render" loading="lazy" onerror="phFail(this)"><span class="tile-meta"><b>OP Perfume</b><i class="mono">HERO · 2025</i></span></a>
+    <a class="tile t22" data-lb><img src="assets/images/conceptdesign-1.webp" alt="Concept design board" loading="lazy" onerror="phFail(this)"><span class="tile-meta"><b>Concept Design</b><i class="mono">MOOD · 2024</i></span></a>
+    <a class="tile t21" data-lb><img src="assets/images/car-render-1.webp" alt="Automotive render" loading="lazy" onerror="phFail(this)"><span class="tile-meta"><b>Automotive</b><i class="mono">CAD · 2024</i></span></a>
+    <a class="tile t21" data-lb><img src="assets/images/conceptdesign-2.webp" alt="Concept design 2" loading="lazy" onerror="phFail(this)"><span class="tile-meta"><b>Concept</b><i class="mono">PAINTING</i></span></a>
+    <a class="tile t11" data-lb><img src="assets/images/cylinder-1.webp" alt="Hard-surface study" loading="lazy" onerror="phFail(this)"><span class="tile-meta"><b>Hard-surface</b><i class="mono">STUDY</i></span></a>
+    <a class="tile t11" data-lb><img src="assets/images/conceptdesign-3.webp" alt="Concept painting 3" loading="lazy" onerror="phFail(this)"><span class="tile-meta"><b>Concept</b><i class="mono">PAINTING</i></span></a>
+    <a class="tile t11" data-lb><img src="assets/images/car-render-2.webp" alt="Automotive light study" loading="lazy" onerror="phFail(this)"><span class="tile-meta"><b>Auto</b><i class="mono">LIGHT STUDY</i></span></a>
+    <a class="tile t11" data-lb><img src="assets/images/cylinder-2.webp" alt="Cylinder hard-surface 2" loading="lazy" onerror="phFail(this)"><span class="tile-meta"><b>Cylinder</b><i class="mono">HARD-SURFACE</i></span></a>
+  </div>
+</section>
+
+<section class="services" id="services" data-hour="23:00" data-theme="night">
+  <div class="case-hour mono reveal"><span class="tick"></span>23:00 — ENGAGEMENT</div>
+  <h2 data-split>Three ways to <em class="serif-i">commission a world.</em></h2>
+  <p class="services-sub reveal">Pick the size of the work, not the hours. Every tier runs concept through delivery — the difference lives in scope and depth, not pace.</p>
+  <div class="tiers">
+    <article class="tier reveal">
+      <div class="tier-no mono">TIER 01</div>
+      <h3>STORYTELLER</h3>
+      <p>A single environment, mood-driven. One moment, lit and held. For album art, key frames, cover stills.</p>
+      <ul class="mono"><li>1 HERO RENDER</li><li>2 ALT ANGLES</li><li>10–14 DAYS</li></ul>
+    </article>
+    <article class="tier reveal">
+      <div class="tier-no mono">TIER 02</div>
+      <h3>WORLDBUILDER</h3>
+      <p>A complete scene — props, lighting, multi-angle renders, the full atmosphere. For editorials, brand campaigns, visual development.</p>
+      <ul class="mono"><li>4–6 HERO RENDERS</li><li>TURNTABLE / PARALLAX</li><li>3–5 WEEKS</li><li>LIGHT REVISIONS INCL.</li></ul>
+    </article>
+    <article class="tier flagship reveal">
+      <div class="tier-no mono">TIER 03 · FLAGSHIP</div>
+      <h3>DIRECTOR</h3>
+      <p>Concept-to-pipeline-to-final. Animation passes, look-dev, the full hand-off package. For studios, agencies, films, product launches.</p>
+      <ul class="mono"><li>FULL VISUAL DEVELOPMENT</li><li>ANIMATED TURNTABLES · PRE-VIZ</li><li>FARM-READY HAND-OFF</li><li>6–10 WEEKS</li><li>ON-CALL 2 MONTHS POST</li></ul>
+    </article>
+  </div>
+</section>
+
+<section class="statement" id="statement" data-hour="23:40" data-theme="night">
+  <div class="st-grid">
+    <div class="st-prose">
+      <div class="case-hour mono reveal"><span class="tick"></span>23:40 — ARTIST STATEMENT</div>
+      <h2 data-split>I make spaces where the light <em class="serif-i">behaves like it has somewhere to be.</em></h2>
+      <p class="reveal">I’m a 3D environment artist trained in the Indian and international agency pipeline — Maya, ZBrush, Substance, Arnold, Unreal — with the soul of someone who grew up watching anime frames longer than their parents would’ve liked. The two halves don’t argue with each other. They argue with the work, and the work answers.</p>
+      <p class="reveal">I think of an environment as a kept thing. A working life. Cracks where someone has put their hand a thousand times. Foxes that have stopped expecting visitors but still keep watch.</p>
+      <p class="reveal">Available for full-time and project work — remote or on-site.</p>
+      <div class="st-cta reveal">
+        <a class="btn solid" href="https://su3doesign.github.io/Resume/" target="_blank" rel="noopener" data-magnetic>RESUME</a>
+        <a class="btn ghost" href="https://behance.net/sumanthrichie" target="_blank" rel="noopener" data-magnetic>BEHANCE</a>
+        <a class="btn ghost" href="mailto:sumanth.richie25@icloud.com" data-magnetic>MAIL</a>
+      </div>
+    </div>
+    <div class="st-scene mono reveal" id="sceneFile">
+<pre><span class="c"># scene: sumanth.ass — Arnold Scene Source</span>
+artist        <span class="v" data-t="&quot;Amidyala Sai Sumanth&quot;"></span>
+role          <span class="v" data-t="&quot;3D Environment Artist&quot;"></span>
+based         <span class="v" data-t="&quot;Hyderabad, IN · 17.38N 78.48E&quot;"></span>
+education     <span class="v" data-t="&quot;BA Hons Multimedia, JNAFAU 2026&quot;"></span>
+stack         <span class="v" data-t="&quot;Maya / ZBrush / Substance / Arnold / Unreal&quot;"></span>
+soul          <span class="v" data-t="&quot;anime frames, kept&quot;"></span>
+availability  <span class="v" data-t="&quot;open&quot;"></span></pre>
+    </div>
+  </div>
+</section>
+
+<div class="marquee mq-night" data-mq aria-hidden="true">
+  <div class="mq-track mono">AVAILABLE — COMMISSION · FULL-TIME · COLLABORATION&nbsp;&nbsp;✦&nbsp;&nbsp;WORLDS, WORN-IN&nbsp;&nbsp;✦&nbsp;&nbsp;</div>
+</div>
+
+<section class="closer" id="contact" data-hour="23:59" data-theme="night">
+  <div class="closer-clock mono" id="closerClock">23:59</div>
+  <h2 class="closer-line"><span data-split>The day ends.</span> <em class="serif-i" data-split>The work begins again.</em></h2>
+  <a class="closer-mail" href="mailto:sumanth.richie25@icloud.com" data-magnetic>sumanth.richie25@icloud.com</a>
+  <div class="closer-cta">
+    <a class="btn ghost" href="https://behance.net/sumanthrichie" target="_blank" rel="noopener" data-magnetic>BEHANCE</a>
+    <a class="btn ghost" href="https://instagram.com/sumofDanth" target="_blank" rel="noopener" data-magnetic>INSTAGRAM</a>
+    <a class="btn ghost" href="https://su3doesign.github.io/Resume/" target="_blank" rel="noopener" data-magnetic>RESUME</a>
+  </div>
+  <footer class="foot mono">
+    <span>© 2026 AMIDYALA SAI SUMANTH</span>
+    <span>BUILT IN HYDERABAD · RUNS ON SOLAR TIME</span>
+    <span id="footLocal">LOCAL — 00:00 IST</span>
+  </footer>
+</section>
+
+</main>
+
+<div class="gallery" id="gallery" aria-hidden="true">
+  <div class="gal-top">
+    <div class="gal-id">
+      <div class="gal-brand" id="galBrand"></div>
+      <div class="gal-role mono" id="galRole"></div>
+    </div>
+    <button class="gal-close mono" id="galClose">CLOSE ✕</button>
+  </div>
+  <button class="gal-arrow gal-prev" id="galPrev" aria-label="Previous piece">←</button>
+  <div class="gal-viewport" id="galViewport">
+    <div class="gal-track" id="galTrack"></div>
+  </div>
+  <button class="gal-arrow gal-next" id="galNext" aria-label="Next piece">→</button>
+  <div class="gal-bottom mono">
+    <span class="gal-key">←→ BROWSE</span>
+    <span class="gal-key">↑↓ SWITCH CLIENT</span>
+    <span id="galPos"></span>
+  </div>
+</div>
+
+<div class="lightbox" id="lightbox" aria-hidden="true">
+  <button class="lb-close mono" id="lbClose">CLOSE ✕</button>
+  <div class="lb-body" id="lbBody"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.147.0/build/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+/* placeholder fallback — swap any missing asset into a blueprint frame */
+function phFail(el){
+  var fig = el.closest('figure') || el.closest('.tile');
+  if(!fig) return;
+  el.style.display = 'none';
+  fig.classList.add('ph');
+  if(!fig.querySelector('.ph-tag')){
+    var t = document.createElement('span');
+    t.className = 'ph-tag mono';
+    var src = (el.getAttribute('src')||'').split('/').pop();
+    t.innerHTML = '<i>AWAITING RENDER</i><b>' + src + '</b>';
+    fig.appendChild(t);
+  }
+}
+</script>
+<script src="scene.js" defer></script>
+<script src="app.js" defer></script>
+</body>
+</html>

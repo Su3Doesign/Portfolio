@@ -8,7 +8,8 @@
     renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: false, powerPreference: 'high-performance' });
   } catch (e) { document.body.classList.add('no-webgl'); return; }
 
-  var DPR = Math.min(window.devicePixelRatio || 1, 1.75);
+  var isTouch = window.matchMedia('(hover:none)').matches;
+  var DPR = Math.min(window.devicePixelRatio || 1, isTouch ? 1.25 : 1.75);
   renderer.setPixelRatio(DPR);
   renderer.setSize(window.innerWidth, window.innerHeight);
 
@@ -116,7 +117,20 @@
   }
   var sunCore = new THREE.Mesh(new THREE.PlaneGeometry(9, 9), discMat(0.0, 0.42));
   var sunHalo = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), discMat(0.0, 1.0));
-  var sunAtmo = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), discMat(0.0, 1.0));
+  var atmoMat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    uniforms: { uC: { value: new THREE.Color('#FFD9A0') }, uI: { value: 0 }, uT: { value: 0 } },
+    vertexShader:
+      'varying vec2 vUv; void main(){ vUv = uv;' +
+      ' gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+    fragmentShader:
+      'uniform vec3 uC; uniform float uI, uT; varying vec2 vUv;' +
+      'void main(){ float d = distance(vUv, vec2(0.5)) * 2.0;' +
+      ' float a = (1.0 - smoothstep(0.0, 1.0, d)) * uI;' +
+      ' float ring = 0.85 + 0.15 * sin(d * 22.0 - uT * 1.4) * sin(d * 9.0 - uT * 0.7);' +
+      ' gl_FragColor = vec4(uC, a * ring); }'
+  });
+  var sunAtmo = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), atmoMat);
   sunHalo.material.uniforms.uI.value = 0.5;
   sunAtmo.material.uniforms.uI.value = 0.0;
   scene.add(sunCore); scene.add(sunHalo); scene.add(sunAtmo);
@@ -266,65 +280,53 @@
   aurora.rotation.z = -0.05;
   scene.add(aurora);
 
-  function makeStormMat() { return new THREE.ShaderMaterial({
-    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
-    uniforms: { uT: { value: 0 }, uA: { value: 0 }, uHue: { value: 0.62 }, uSeed: { value: 0 } },
+  var stormFS = new THREE.ShaderMaterial({
+    transparent: true, depthTest: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    uniforms: {
+      iRes: { value: new THREE.Vector2(1, 1) },
+      uT: { value: 0 }, uA: { value: 0 }, uHue: { value: 200.0 }
+    },
     vertexShader:
-      'varying vec2 vUv; void main(){ vUv = uv;' +
-      ' gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+      'void main(){ gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
     fragmentShader:
-      'precision mediump float; uniform float uT, uA, uHue, uSeed; varying vec2 vUv;' +
+      'precision highp float;' +
+      'uniform vec2 iRes; uniform float uT, uA, uHue;' +
       'vec3 hsv2rgb(vec3 c){ vec3 rgb = clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0,0.0,1.0); return c.z*mix(vec3(1.0),rgb,c.y); }' +
+      'float hash11(float p){ p = fract(p*.1031); p *= p+33.33; p *= p+p; return fract(p); }' +
       'float hash12(vec2 p){ vec3 p3 = fract(vec3(p.xyx)*.1031); p3 += dot(p3,p3.yzx+33.33); return fract((p3.x+p3.y)*p3.z); }' +
-      'mat2 rot(float t){ float c=cos(t); float s=sin(t); return mat2(c,-s,s,c); }' +
-      'float noise(vec2 p){ vec2 ip=floor(p); vec2 fp=fract(p);' +
+      'mat2 rot2(float t){ float c=cos(t); float s=sin(t); return mat2(c,-s,s,c); }' +
+      'float vnoi(vec2 p){ vec2 ip=floor(p); vec2 fp=fract(p);' +
       ' float a=hash12(ip); float b=hash12(ip+vec2(1.0,0.0)); float c=hash12(ip+vec2(0.0,1.0)); float d=hash12(ip+vec2(1.0,1.0));' +
       ' vec2 t=smoothstep(0.0,1.0,fp); return mix(mix(a,b,t.x),mix(c,d,t.x),t.y); }' +
       'float fbm(vec2 p){ float v=0.0; float amp=0.5;' +
-      ' for(int i=0;i<6;i++){ v+=amp*noise(p); p*=rot(0.45); p*=2.0; amp*=0.5; } return v; }' +
+      ' for(int i=0;i<10;i++){ v+=amp*vnoi(p); p*=rot2(0.45); p*=2.0; amp*=0.5; } return v; }' +
       'void main(){' +
-      ' vec2 uv = vUv * 2.0 - 1.0;' +
-      ' uv.x *= 2.4;' +
-      ' uv += 2.0 * fbm(uv * 1.6 + uSeed + 0.32 * uT) - 1.0;' +
-      ' float dist = abs(uv.x);' +
-      ' vec3 base = hsv2rgb(vec3(uHue, 0.55, 0.85));' +
-      ' vec3 col = base * (0.05 / max(dist, 0.015));' +
-      ' float vfade = smoothstep(1.0, 0.2, abs(vUv.y * 2.0 - 1.0));' +
-      ' float lum = min(1.0, col.r + col.g + col.b);' +
-      ' gl_FragColor = vec4(col, lum * vfade * uA); }'
-  }); }
-  var boltMat = makeStormMat();
-  var bolt = new THREE.Mesh(new THREE.PlaneGeometry(90, 95), boltMat);
-  bolt.position.set(18, 30, -148);
-  bolt.visible = false;
-  scene.add(bolt);
+      ' vec2 uv = gl_FragCoord.xy / iRes;' +
+      ' uv = 2.0*uv - 1.0;' +
+      ' uv.x *= iRes.x / iRes.y;' +
+      ' uv += 2.0 * fbm(uv * 2.6 + 0.8 * uT * 0.5) - 1.0;' +
+      ' vec3 base = hsv2rgb(vec3(uHue/360.0, 0.7, 0.8));' +
+      ' vec3 col = vec3(0.0);' +
+      ' float f0 = 0.030 + 0.018 * (0.5 + 0.5 * sin(uT * 1.1) * sin(uT * 0.63 + 2.0));' +
+      ' col += base * (f0 / abs(uv.x)) * 0.9;' +
+      ' float f1 = 0.024 + 0.014 * (0.5 + 0.5 * sin(uT * 0.9 + 4.0) * sin(uT * 0.51 + 1.0));' +
+      ' col += base * (f1 / abs(uv.x + 1.35)) * 0.6;' +
+      ' float f2 = 0.024 + 0.014 * (0.5 + 0.5 * sin(uT * 1.27 + 8.0) * sin(uT * 0.71 + 5.0));' +
+      ' col += base * (f2 / abs(uv.x - 1.4)) * 0.6;' +
+      ' col *= uA;' +
+      ' gl_FragColor = vec4(col, 1.0); }'
+  });
+  var stormPlane = new THREE.Mesh(new THREE.PlaneGeometry(560, 300), stormFS);
+  stormPlane.position.set(0, 36, -165);
+  stormPlane.visible = false;
+  scene.add(stormPlane);
 
-  var beamMat = makeStormMat();
-  var beam = new THREE.Mesh(new THREE.PlaneGeometry(110, 120), beamMat);
-  beam.position.set(4, 28, -150);
-  beamMat.uniforms.uHue.value = 0.615;
-  beamMat.uniforms.uSeed.value = 11.3;
-  scene.add(beam);
+  var stormLight = new THREE.DirectionalLight(0x9FB8FF, 0);
+  stormLight.position.set(0, 70, -60);
+  scene.add(stormLight);
+  var stormCol = new THREE.Color();
 
-  var boltEnv = 0, boltNext = 6 + Math.random() * 8, boltClock = 0;
-  function maybeBolt(dt, nightF) {
-    var wx = window.__weather || {};
-    if (wx.mode !== 'storm' || nightF < 0.35) { boltEnv = Math.max(0, boltEnv - dt * 3); bolt.visible = boltEnv > 0.01; boltMat.uniforms.uA.value = boltEnv * 0.85; return; }
-    boltClock += dt;
-    if (boltClock >= boltNext) {
-      boltClock = 0; boltNext = 6 + Math.random() * 9;
-      boltEnv = 1;
-      boltMat.uniforms.uSeed.value = Math.random() * 40.0;
-      bolt.position.x = -30 + Math.random() * 60;
-      boltMat.uniforms.uHue.value = 0.58 + Math.random() * 0.10;
-      document.body.classList.add('bolt-flash');
-      setTimeout(function () { document.body.classList.remove('bolt-flash'); }, 420);
-    }
-    boltEnv = Math.max(0, boltEnv - dt * 1.8);
-    var flick = boltEnv > 0 ? (0.6 + 0.4 * Math.sin(boltClock * 90.0)) : 0;
-    bolt.visible = boltEnv > 0.01;
-    boltMat.uniforms.uA.value = boltEnv * flick * 0.85;
-  }
+  var stormA = 0, stormLiveCls = false;
 
   var sunLight = new THREE.DirectionalLight(0xFFD9A0, 0.0);
   var ambLight = new THREE.AmbientLight(0xBFD0E8, 0.22);
@@ -374,8 +376,9 @@
     sunCore.material.uniforms.uI.value = vis;
     sunHalo.material.uniforms.uI.value = vis * 0.45 + Math.max(0, 0.3 - Math.abs(el)) * 0.6;
     var firstLight = Math.max(0, Math.min(1, (el + 0.28) * 3.6)) * Math.max(0, 1 - Math.abs(el) * 2.2);
-    sunAtmo.material.uniforms.uC.value.copy(cur.sun).lerp(cur.hor, 0.35);
-    sunAtmo.material.uniforms.uI.value = firstLight * 0.5;
+    atmoMat.uniforms.uC.value.copy(cur.sun).lerp(cur.hor, 0.35);
+    atmoMat.uniforms.uI.value = firstLight * 0.5;
+    atmoMat.uniforms.uT.value = clock.elapsedTime;
 
     starMat.uniforms.uA.value = cur.star;
     starMat.uniforms.uT.value = clock.elapsedTime;
@@ -414,14 +417,43 @@
       camera.lookAt(0, 1.4 + el * 6, -40);
     }
 
-    var dt = clock.getDelta();
-    boltMat.uniforms.uT.value = clock.elapsedTime;
-    maybeBolt(dt, cur.star);
-    beamMat.uniforms.uT.value = clock.elapsedTime * 0.38;
-    var heroV = Math.max(0, 1 - window.scrollY / (window.innerHeight * 0.9));
-    var beamA = heroV * Math.max(0, (cur.star - 0.45) / 0.55) * 0.5;
-    beam.visible = beamA > 0.01;
-    beamMat.uniforms.uA.value = beamA;
+    clock.getDelta();
+    var heroV = Math.max(0, 1 - window.scrollY / (window.innerHeight * 1.3));
+    var wxm = (window.__weather || {}).mode;
+    if (wxm !== 'storm') {
+      stormA = 0;
+    } else {
+      var stormTarget = heroV * Math.max(0, (cur.star - 0.35) / 0.65);
+      stormA += (stormTarget - stormA) * 0.05;
+    }
+    window.__stormA = stormA;
+    var liveNow = stormA > 0.05;
+    if (liveNow !== stormLiveCls) {
+      stormLiveCls = liveNow;
+      document.body.classList.toggle('storm-live', liveNow);
+    }
+    stormPlane.visible = stormA > 0.01;
+    if (stormPlane.visible) {
+      var hue = (typeof window.__stormHue === 'number') ? window.__stormHue : 200;
+      stormFS.uniforms.uT.value = clock.elapsedTime;
+      stormFS.uniforms.uA.value = stormA * 0.9;
+      stormFS.uniforms.uHue.value = hue;
+      stormFS.uniforms.iRes.value.set(renderer.domElement.width, renderer.domElement.height);
+      starMat.uniforms.uA.value = cur.star * (1 - stormA * 0.8);
+      skyMat.uniforms.uTop.value.multiplyScalar(1 - stormA * 0.55);
+      skyMat.uniforms.uHor.value.multiplyScalar(1 - stormA * 0.45);
+      auroraMat.uniforms.uA.value *= (1 - stormA);
+      var et = clock.elapsedTime;
+      var f0 = 0.45 + 0.55 * (0.5 + 0.5 * Math.sin(et * 1.1) * Math.sin(et * 0.63 + 2.0));
+      stormCol.setHSL(hue / 360, 0.6, 0.72);
+      stormLight.color.copy(stormCol);
+      stormLight.intensity = stormA * f0 * 1.7;
+      terMat.emissive.copy(stormCol).multiplyScalar(stormA * f0 * 0.1);
+      wire.material.opacity = 0.028 + stormA * f0 * 0.07;
+    } else {
+      stormLight.intensity = 0;
+      terMat.emissive.setRGB(0, 0, 0);
+    }
     renderer.render(scene, camera);
     requestAnimationFrame(frame);
   }

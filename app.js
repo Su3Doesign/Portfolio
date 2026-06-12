@@ -3,6 +3,9 @@
 
   if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
   window.scrollTo(0, 0);
+  window.addEventListener('pageshow', function () { window.scrollTo(0, 0); });
+  window.addEventListener('beforeunload', function () { window.scrollTo(0, 0); });
+  document.body.classList.add('loading');
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var hasGsap = typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined';
@@ -81,12 +84,19 @@
 
   function bootDone() {
     loader.classList.add('done');
+    window.scrollTo(0, 0);
+    document.body.classList.remove('loading');
+    if (lenis) { lenis.scrollTo(0, { immediate: true }); lenis.start(); }
     setTimeout(heroIntro, 350);
     if (hasGsap) setTimeout(function () { ScrollTrigger.refresh(); }, 1100);
   }
 
+  if (lenis) lenis.stop();
   if (reduced || !hasGsap) {
-    loader.classList.add('done'); heroIntro();
+    loader.classList.add('done');
+    document.body.classList.remove('loading');
+    if (lenis) lenis.start();
+    heroIntro();
   } else {
     var prog = { v: 0 }, mi = 0;
     var msgTimer = setInterval(function () { mi = Math.min(mi + 1, msgs.length - 1); msgEl.textContent = msgs[mi]; }, 330);
@@ -427,7 +437,18 @@
       if (e.target.tagName === 'IMG') e.preventDefault();
     });
 
+    var coarse = window.matchMedia('(hover:none)').matches;
     railsRoot.querySelectorAll('.rail-strip').forEach(function (strip, stripIdx) {
+      if (coarse) {
+        strip.addEventListener('click', function (e) {
+          var card = e.target.closest ? e.target.closest('.rail-card') : null;
+          if (card && strip.contains(card)) {
+            var idx = Array.prototype.indexOf.call(strip.children, card);
+            openGallery(stripIdx, Math.max(0, idx));
+          }
+        });
+        return;
+      }
       var down = false, startX = 0, startY = 0, startL = 0, vel = 0, lastX = 0, raf, moved = false;
       strip.addEventListener('pointerdown', function (e) {
         down = true; moved = false;
@@ -661,7 +682,13 @@
     function paint() {
       var icons = { clear: '✦', rain: '☂', storm: '⚡' };
       if (label) label.textContent = icons[window.__weather.mode] + ' ' + window.__weather.mode.toUpperCase();
+      document.body.classList.toggle('wx-storm', window.__weather.mode === 'storm');
     }
+    window.__stormHue = 200;
+    var hueSlide = document.getElementById('hueSlide');
+    if (hueSlide) hueSlide.addEventListener('input', function () {
+      window.__stormHue = +hueSlide.value;
+    });
     if (pill) {
       paint();
       pill.addEventListener('click', function () {
@@ -692,6 +719,68 @@
     }
     seedDrops(170);
 
+    var curX = -1, curY = -1, cpx = -9999, cpy = -9999;
+    window.addEventListener('pointermove', function (e) {
+      curX = e.clientX / window.innerWidth;
+      curY = e.clientY / window.innerHeight;
+      cpx = e.clientX; cpy = e.clientY;
+    }, { passive: true });
+
+    var webPts = [], fine = window.matchMedia('(hover:hover)').matches;
+    function seedWeb() {
+      webPts = [];
+      for (var i = 0; i < 130; i++) webPts.push({
+        x: Math.random() * window.innerWidth,
+        y: Math.random() * window.innerHeight,
+        len: 0
+      });
+    }
+    seedWeb();
+    window.addEventListener('resize', seedWeb);
+    function webNoise(x, y) {
+      return Math.sin(0.3 * x + 141.4 + 2.5 * Math.sin(0.4 * y - 131.3)) +
+             Math.sin(0.2 * y + 151.5 + 2.3 * Math.sin(0.5 * x - 121.2));
+    }
+    function drawWeb(t) {
+      if (!fine || cpx < 0 || !document.body.classList.contains('storm-live')) {
+        for (var r = 0; r < webPts.length; r++) webPts[r].len = Math.max(0, webPts[r].len - 0.08);
+        return;
+      }
+      var hue = typeof window.__stormHue === 'number' ? window.__stormHue : 200;
+      var R = Math.min(window.innerWidth / 10, 150);
+      var grabbed = 0;
+      ctx.lineWidth = 1 * DPR2;
+      for (var i = 0; i < webPts.length; i++) {
+        var p = webPts[i];
+        var dx = p.x - cpx, dy = p.y - cpy;
+        var len = Math.sqrt(dx * dx + dy * dy);
+        var inRange = len < R && grabbed < 8;
+        if (inRange) grabbed++;
+        p.len = Math.max(0, Math.min(p.len + (inRange ? 0.08 : -0.06), 1));
+        if (p.len <= 0.01) continue;
+        var e = p.len * p.len;
+        var ox = cpx + (dx / (len || 1)) * 9;
+        var oy = cpy + (dy / (len || 1)) * 9;
+        var ex = ox + (p.x - ox) * e;
+        var ey = oy + (p.y - oy) * e;
+        ctx.strokeStyle = 'hsla(' + hue + ', 85%, 75%, ' + (0.45 * p.len) + ')';
+        ctx.beginPath();
+        ctx.moveTo(ox * DPR2, oy * DPR2);
+        for (var s = 1; s <= 24; s++) {
+          var f = s / 24;
+          var lx = ox + (ex - ox) * f;
+          var ly = oy + (ey - oy) * f;
+          var k = webNoise(lx / 5 + t * 60, ly / 5) * 1.8 * Math.sin(f * Math.PI);
+          ctx.lineTo((lx + k) * DPR2, (ly + k) * DPR2);
+        }
+        ctx.stroke();
+        ctx.fillStyle = 'hsla(' + hue + ', 90%, 82%, ' + (0.8 * p.len) + ')';
+        ctx.beginPath();
+        ctx.arc(ex * DPR2, ey * DPR2, 1.6 * DPR2 * p.len, 0, 7);
+        ctx.fill();
+      }
+    }
+
     var meteorsArr = [], mNext = 3 + Math.random() * 5, mClock = 0;
     function spawnMeteor() {
       meteorsArr.push({
@@ -720,6 +809,11 @@
           var slant = slantBase * d.s + wind + Math.sin(now * 0.001 + d.w) * 0.025;
           d.y += d.v * dt * (m === 'storm' ? 1.5 : 1.0);
           d.x += d.v * dt * slant;
+          if (curX >= 0) {
+            var ddx = d.x - curX, ddy = d.y - curY;
+            var dd = ddx * ddx + ddy * ddy;
+            if (dd < 0.012) d.x += (ddx > 0 ? 1 : -1) * dt * (0.012 - dd) * 40;
+          }
           if (d.y > 1.05) { d.y = -0.05 - Math.random() * 0.1; d.x = Math.random(); }
           var pxx = d.x * wx.width, pyy = d.y * wx.height;
           ctx.strokeStyle = 'rgba(174,194,224,' + (d.o * rainOn * 0.7) + ')';
@@ -729,6 +823,8 @@
           ctx.stroke();
         }
       }
+
+      drawWeb(now / 1000);
 
       var meteorOn = m !== 'storm' && nightF > 0.55;
       if (meteorOn) {

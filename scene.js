@@ -1,8 +1,3 @@
-/* ═══════════════════════════════════════════════════════════
-   MERIDIAN · scene.js — one continuous procedural day
-   Sky dome + sun + twinkling stars + cursor star-trail +
-   low-poly terrain, scroll-driven. No models, no textures.
-   ═══════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
   if (typeof THREE === 'undefined') { document.body.classList.add('no-webgl'); return; }
@@ -21,8 +16,6 @@
   var camera = new THREE.PerspectiveCamera(52, window.innerWidth / window.innerHeight, 0.1, 400);
   camera.position.set(0, 1.6, 9);
 
-  /* ── palettes per phase ─────────────────────────────
-     [skyTop, skyHorizon, ground, sunColor, sunElev(-1..1), starAlpha, ambient] */
   var P = {
     night:     ['#050810', '#0B1424', '#06090F', '#FFD9A0', -0.42, 1.00, 0.22],
     blueHour:  ['#0A142E', '#2B3A66', '#0A0F1C', '#FFC894', -0.10, 0.55, 0.30],
@@ -37,23 +30,13 @@
   };
 
   var SECTION_PHASE = [
-    ['hero',       'night'],
-    ['manifesto',  'blueHour'],
-    ['roman',      'dawn'],
-    ['process',    'morning'],
-    ['clients',    'midday'],
-    ['philosophy', 'golden'],
-    ['fudo',       'dusk'],
-    ['koi',        'koiNight'],
-    ['archive',    'deepNight'],
-    ['services',   'deepNight'],
-    ['statement',  'midnight'],
-    ['contact',    'midnight']
+    ['hero', 'night'], ['manifesto', 'blueHour'], ['roman', 'dawn'],
+    ['process', 'morning'], ['clients', 'midday'], ['philosophy', 'golden'],
+    ['fudo', 'dusk'], ['koi', 'koiNight'], ['archive', 'deepNight'],
+    ['services', 'deepNight'], ['statement', 'midnight'], ['contact', 'midnight']
   ];
 
   var stops = [];
-  /* layout position via offsetParent chain — pin transforms don't affect it,
-     and the pin-spacer keeps document flow honest. No more sun-bob. */
   function layoutTop(el) {
     var t = 0, n = el;
     while (n) { t += n.offsetTop; n = n.offsetParent; }
@@ -68,7 +51,6 @@
       var at = Math.min(1, Math.max(0, (layoutTop(el) + el.offsetHeight * 0.35 - window.innerHeight * 0.5) / docH));
       raw.push({ at: i === 0 ? 0 : at, pal: P[SECTION_PHASE[i][1]] });
     }
-    /* enforce strictly non-decreasing stop order = monotonic day */
     for (var k = 1; k < raw.length; k++) if (raw[k].at < raw[k - 1].at) raw[k].at = raw[k - 1].at;
     stops = raw;
   }
@@ -95,13 +77,12 @@
     lerpHex(p1[1], p2[1], t, out.hor);
     lerpHex(p1[2], p2[2], t, out.ground);
     lerpHex(p1[3], p2[3], t, out.sun);
-    out.elev  = p1[4] + (p2[4] - p1[4]) * t;
-    out.star  = p1[5] + (p2[5] - p1[5]) * t;
-    out.amb   = p1[6] + (p2[6] - p1[6]) * t;
+    out.elev = p1[4] + (p2[4] - p1[4]) * t;
+    out.star = p1[5] + (p2[5] - p1[5]) * t;
+    out.amb  = p1[6] + (p2[6] - p1[6]) * t;
   }
   var cur = { top: new THREE.Color(), hor: new THREE.Color(), ground: new THREE.Color(), sun: new THREE.Color(), elev: -0.4, star: 1, amb: 0.2 };
 
-  /* ── sky dome ───────────────────────────────────── */
   var skyMat = new THREE.ShaderMaterial({
     side: THREE.BackSide, depthWrite: false,
     uniforms: {
@@ -119,7 +100,6 @@
   });
   scene.add(new THREE.Mesh(new THREE.SphereGeometry(180, 32, 18), skyMat));
 
-  /* ── sun (disc + halo) ──────────────────────────── */
   function discMat(inner, falloff) {
     return new THREE.ShaderMaterial({
       transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
@@ -136,15 +116,13 @@
   }
   var sunCore = new THREE.Mesh(new THREE.PlaneGeometry(9, 9), discMat(0.0, 0.42));
   var sunHalo = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), discMat(0.0, 1.0));
-  var sunAtmo = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), discMat(0.0, 1.0));   /* first-light atmosphere */
+  var sunAtmo = new THREE.Mesh(new THREE.PlaneGeometry(120, 120), discMat(0.0, 1.0));
   sunHalo.material.uniforms.uI.value = 0.5;
   sunAtmo.material.uniforms.uI.value = 0.0;
   scene.add(sunCore); scene.add(sunHalo); scene.add(sunAtmo);
 
-  /* prng */
   function mulberry(a) { return function () { a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
 
-  /* ── stars — per-star twinkle via shader points ──── */
   var starGeo = new THREE.BufferGeometry();
   var N = 850, pos = new Float32Array(N * 3), rnd = mulberry(7);
   var aPhase = new Float32Array(N), aSpeed = new Float32Array(N), aSize = new Float32Array(N);
@@ -182,7 +160,6 @@
   });
   scene.add(new THREE.Points(starGeo, starMat));
 
-  /* ── cursor star-trail — alive only at night, over open sky ── */
   var TN = 220, tPos = new Float32Array(TN * 3), tLife = new Float32Array(TN),
       tVel = new Float32Array(TN * 3), tSize = new Float32Array(TN), tHead = 0;
   for (var ti = 0; ti < TN; ti++) { tLife[ti] = 0; tPos[ti * 3 + 2] = -40; }
@@ -232,7 +209,6 @@
     if (window.__skyHover && starMat.uniforms.uA.value > 0.3) spawnTrail(e.clientX, e.clientY, performance.now());
   }, { passive: true });
 
-  /* ── terrain — faceted low-poly dunes ───────────── */
   var nr = mulberry(42), grid = [], GS = 96;
   for (var g = 0; g < (GS + 1) * (GS + 1); g++) grid.push(nr());
   function vnoise(x, y) {
@@ -264,7 +240,6 @@
   wire.position.copy(terrain.position); wire.position.y += 0.02;
   scene.add(wire);
 
-  /* ── midnight aurora — adapted from the user's 21st.dev WebGLShader (spectral RGB ribbons) ── */
   var auroraMat = new THREE.ShaderMaterial({
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide,
     uniforms: { uT: { value: 0 }, uA: { value: 0 } },
@@ -281,7 +256,7 @@
       ' float r = 0.028 / abs(p.y + sin((rx + uT) * xS) * yS);' +
       ' float g = 0.034 / abs(p.y + sin((gx + uT) * xS) * yS);' +
       ' float b = 0.030 / abs(p.y + sin((bx + uT) * xS) * yS);' +
-      ' vec3 col = vec3(r * 0.45, g * 0.85, b * 0.80);' +          /* polar green-teal cast */
+      ' vec3 col = vec3(r * 0.45, g * 0.85, b * 0.80);' +
       ' float fade = (1.0 - abs(p.y)) * smoothstep(1.0, 0.45, abs(p.x));' +
       ' float lum = (col.r + col.g + col.b);' +
       ' gl_FragColor = vec4(col, min(1.0, lum) * fade * uA); }'
@@ -291,8 +266,7 @@
   aurora.rotation.z = -0.05;
   scene.add(aurora);
 
-  /* ── storm lightning — adapted from the user's Hero-Odyssey shader (fbm bolt), slowed, burst-only ── */
-  var boltMat = new THREE.ShaderMaterial({
+  function makeStormMat() { return new THREE.ShaderMaterial({
     transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
     uniforms: { uT: { value: 0 }, uA: { value: 0 }, uHue: { value: 0.62 }, uSeed: { value: 0 } },
     vertexShader:
@@ -311,18 +285,26 @@
       'void main(){' +
       ' vec2 uv = vUv * 2.0 - 1.0;' +
       ' uv.x *= 2.4;' +
-      ' uv += 2.0 * fbm(uv * 1.6 + uSeed + 0.32 * uT) - 1.0;' +      /* slow drift */
+      ' uv += 2.0 * fbm(uv * 1.6 + uSeed + 0.32 * uT) - 1.0;' +
       ' float dist = abs(uv.x);' +
       ' vec3 base = hsv2rgb(vec3(uHue, 0.55, 0.85));' +
       ' vec3 col = base * (0.05 / max(dist, 0.015));' +
       ' float vfade = smoothstep(1.0, 0.2, abs(vUv.y * 2.0 - 1.0));' +
       ' float lum = min(1.0, col.r + col.g + col.b);' +
       ' gl_FragColor = vec4(col, lum * vfade * uA); }'
-  });
+  }); }
+  var boltMat = makeStormMat();
   var bolt = new THREE.Mesh(new THREE.PlaneGeometry(90, 95), boltMat);
   bolt.position.set(18, 30, -148);
   bolt.visible = false;
   scene.add(bolt);
+
+  var beamMat = makeStormMat();
+  var beam = new THREE.Mesh(new THREE.PlaneGeometry(110, 120), beamMat);
+  beam.position.set(4, 28, -150);
+  beamMat.uniforms.uHue.value = 0.615;
+  beamMat.uniforms.uSeed.value = 11.3;
+  scene.add(beam);
 
   var boltEnv = 0, boltNext = 6 + Math.random() * 8, boltClock = 0;
   function maybeBolt(dt, nightF) {
@@ -334,24 +316,22 @@
       boltEnv = 1;
       boltMat.uniforms.uSeed.value = Math.random() * 40.0;
       bolt.position.x = -30 + Math.random() * 60;
-      boltMat.uniforms.uHue.value = 0.58 + Math.random() * 0.10;     /* steel blue → violet */
+      boltMat.uniforms.uHue.value = 0.58 + Math.random() * 0.10;
       document.body.classList.add('bolt-flash');
       setTimeout(function () { document.body.classList.remove('bolt-flash'); }, 420);
     }
-    boltEnv = Math.max(0, boltEnv - dt * 1.8);                        /* ~0.55s decay */
+    boltEnv = Math.max(0, boltEnv - dt * 1.8);
     var flick = boltEnv > 0 ? (0.6 + 0.4 * Math.sin(boltClock * 90.0)) : 0;
     bolt.visible = boltEnv > 0.01;
     boltMat.uniforms.uA.value = boltEnv * flick * 0.85;
   }
 
-  /* lights */
   var sunLight = new THREE.DirectionalLight(0xFFD9A0, 0.0);
   var ambLight = new THREE.AmbientLight(0xBFD0E8, 0.22);
   scene.add(sunLight); scene.add(ambLight);
 
   scene.fog = new THREE.Fog(0x0B1424, 30, 150);
 
-  /* ── scroll + pointer state ─────────────────────── */
   var dayT = 0, px = 0, py = 0, tpx = 0, tpy = 0;
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -365,7 +345,6 @@
     return Math.min(1, Math.max(0, window.scrollY / m));
   }
 
-  /* ── frame loop ─────────────────────────────────── */
   var clock = new THREE.Clock();
   function frame() {
     var t = scrollT();
@@ -394,7 +373,6 @@
     sunHalo.material.uniforms.uC.value.copy(cur.sun);
     sunCore.material.uniforms.uI.value = vis;
     sunHalo.material.uniforms.uI.value = vis * 0.45 + Math.max(0, 0.3 - Math.abs(el)) * 0.6;
-    /* first light — halo blooms over the horizon while the sun is still below it */
     var firstLight = Math.max(0, Math.min(1, (el + 0.28) * 3.6)) * Math.max(0, 1 - Math.abs(el) * 2.2);
     sunAtmo.material.uniforms.uC.value.copy(cur.sun).lerp(cur.hor, 0.35);
     sunAtmo.material.uniforms.uI.value = firstLight * 0.5;
@@ -402,10 +380,9 @@
     starMat.uniforms.uA.value = cur.star;
     starMat.uniforms.uT.value = clock.elapsedTime;
     auroraMat.uniforms.uT.value = clock.elapsedTime * 0.12;
-    auroraMat.uniforms.uA.value = Math.max(0, (cur.star - 0.7) / 0.3) * 0.6;   /* deep night only */
+    auroraMat.uniforms.uA.value = Math.max(0, (cur.star - 0.7) / 0.3) * 0.6;
     trailMat.uniforms.uA.value = Math.max(0, (cur.star - 0.3) / 0.7);
 
-    /* trail physics */
     var anyAlive = false;
     for (var pi = 0; pi < TN; pi++) {
       if (tLife[pi] <= 0) continue;
@@ -440,6 +417,11 @@
     var dt = clock.getDelta();
     boltMat.uniforms.uT.value = clock.elapsedTime;
     maybeBolt(dt, cur.star);
+    beamMat.uniforms.uT.value = clock.elapsedTime * 0.38;
+    var heroV = Math.max(0, 1 - window.scrollY / (window.innerHeight * 0.9));
+    var beamA = heroV * Math.max(0, (cur.star - 0.45) / 0.55) * 0.5;
+    beam.visible = beamA > 0.01;
+    beamMat.uniforms.uA.value = beamA;
     renderer.render(scene, camera);
     requestAnimationFrame(frame);
   }

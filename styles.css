@@ -1,8 +1,4 @@
-/* ═══════════════════════════════════════════════════════════
-   MERIDIAN — a portfolio that runs on solar time
-   Amidyala Sai Sumanth · 3D Environment Artist
-   Design system: Space Grotesk / Instrument Serif / IBM Plex Mono
-   ═══════════════════════════════════════════════════════════ */
+
 
 :root{
   --ink:        #EDEAE2;
@@ -36,7 +32,6 @@ body.theme-gold{
   --accent-2:   #5E2E0E;
 }
 
-/* ── base ───────────────────────────────────────────── */
 *{ margin:0; padding:0; box-sizing:border-box; }
 html{ scroll-behavior:auto; }
 html.lenis, html.lenis body{ height:auto; }
@@ -67,7 +62,6 @@ h2 .serif-i{ font-weight:400; letter-spacing:-.01em; }
 main{ position:relative; z-index:2; }
 section{ position:relative; padding:0 var(--gut); }
 
-/* ── webgl sky + grain ─────────────────────────────── */
 #sky{
   position:fixed; inset:0; width:100%; height:100vh;
   z-index:0; pointer-events:none;
@@ -85,7 +79,6 @@ section{ position:relative; padding:0 var(--gut); }
   80%{ transform:translate(3%,35%); } 90%{ transform:translate(-10%,10%); }
 }
 
-/* ── preloader ─────────────────────────────────────── */
 .loader{
   position:fixed; inset:0; z-index:100;
   background:#05080F; color:#EDEAE2;
@@ -102,7 +95,6 @@ section{ position:relative; padding:0 var(--gut); }
   background:#F2BC57; transform:scaleX(0);
 }
 
-/* ── cursor ────────────────────────────────────────── */
 .cur-dot, .cur-ring{
   position:fixed; top:0; left:0; z-index:99; pointer-events:none;
   border-radius:50%; will-change:transform;
@@ -118,7 +110,6 @@ body.cur-link .cur-ring{ width:56px; height:56px; margin:-28px 0 0 -28px; border
 body.cur-drag .cur-ring{ width:72px; height:72px; margin:-36px 0 0 -36px; border-color:var(--accent); }
 @media (hover:none){ .cur-dot, .cur-ring{ display:none; } }
 
-/* ── HUD ───────────────────────────────────────────── */
 .hud{
   position:fixed; top:0; left:0; right:0; z-index:50;
   display:flex; align-items:center; justify-content:space-between;
@@ -144,7 +135,6 @@ body.cur-drag .cur-ring{ width:72px; height:72px; margin:-36px 0 0 -36px; border
 .hud-solar{ display:flex; align-items:center; gap:10px; font-size:12px; }
 .solar-dial{ width:44px; height:24px; overflow:visible; }
 
-/* ── shared atoms ──────────────────────────────────── */
 .tick{
   display:inline-block; width:8px; height:8px; margin-right:12px;
   background:var(--accent); transform:rotate(45deg) scale(.8);
@@ -177,7 +167,6 @@ body:not(.theme-day):not(.theme-gold) .btn.solid{ color:#0A0E16; }
 .btn.ghost:hover{ border-color:var(--accent); color:var(--accent); }
 .btn.solid:hover{ background:var(--accent); border-color:var(--accent); }
 
-/* split-text masks — padding keeps italic descenders unclipped */
 .w-mask{
   display:inline-block; overflow:hidden; vertical-align:bottom;
   padding-bottom:.12em; margin-bottom:-.12em;
@@ -185,10 +174,8 @@ body:not(.theme-day):not(.theme-gold) .btn.solid{ color:#0A0E16; }
 .w-word{ display:inline-block; transform:translateY(115%); }
 .w-char{ display:inline-block; transform:translateY(118%); }
 
-/* generic reveal */
 .reveal{ opacity:0; transform:translateY(28px); }
 
-/* ── HERO ──────────────────────────────────────────── */
 .hero{
   min-height:100svh; display:flex; flex-direction:column; justify-content:center;
   padding-top:14vh;
@@ -216,7 +203,6 @@ body:not(.theme-day):not(.theme-gold) .btn.solid{ color:#0A0E16; }
 .hero-foot-l{ color:var(--ink-faint); }
 .hero-foot-l em{ font-style:italic; color:var(--ink-soft); }
 
-/* ── MANIFESTO — pinned horizontal ─────────────────── */
 .mani{ padding:0; }
 .mani-pin{
   position:sticky; top:0;
@@ -234,7 +220,6 @@ body:not(.theme-day):not(.theme-gold) .btn.solid{ color:#0A0E16; }
 }
 .frag p{ color:var(--ink-soft); font-size:clamp(15px, 1.25vw, 18px); line-height:1.65; max-width:46ch; }
 
-/* ── CASE STUDIES ──────────────────────────────────── */
 .case{ padding-top:clamp(90px, 16vh, 180px); padding-bottom:clamp(90px, 14vh, 160px); }
 .case-head{ max-width:var(--max); margin:0 auto clamp(48px, 8vh, 90px); }
 .case-title{
@@ -269,7 +254,6 @@ body:not(.theme-day):not(.theme-gold) .btn.solid{ color:#0A0E16; }
 body.theme-day .frame figcaption,
 body.theme-gold .frame figcaption{ color:#EDEAE2; }
 
-/* blueprint placeholder — shown when asset missing */
 .ph{ position:relative; }
 .ph::before{
   content:""; position:absolute; inset:0;
@@ -295,7 +279,6 @@ body.theme-gold .frame figcaption{ color:#EDEAE2; }
 .ph-tag i{ font-style:normal; color:var(--accent); }
 .ph-tag b{ font-weight:500; }
 
-/* ── PROCESS — daylight passage ────────────────────── */
 .process{ padding-top:clamp(110px, 18vh, 200px); padding-bottom:clamp(110px, 16vh, 190px); }
 .proc-head{ max-width:var(--max); margin:0 auto clamp(50px, 8vh, 90px); }
 .pipeline{
@@ -317,7 +300,6 @@ body.theme-gold .frame figcaption{ color:#EDEAE2; }
 .pipeline li:hover .p-name{ transform:translateX(14px); color:var(--accent); }
 .pipeline li:hover .p-sub{ color:var(--ink-soft); }
 
-/* ── CLIENTS — brand rails ─────────────────────────── */
 .clients{ padding-top:clamp(110px, 18vh, 200px); padding-bottom:clamp(90px, 14vh, 160px); }
 .clients-head{ max-width:var(--max); margin:0 auto clamp(40px, 7vh, 80px); }
 .clients-sub{
@@ -372,7 +354,6 @@ body.theme-gold .frame figcaption{ color:#EDEAE2; }
 }
 .rail-strip *{ user-select:none; }
 
-/* ── PHILOSOPHY — golden hour · fluorescent turn-on ── */
 .philo{
   min-height:100svh; display:flex; flex-direction:column;
   align-items:center; justify-content:center; text-align:center;
@@ -405,7 +386,7 @@ body.theme-gold .frame figcaption{ color:#EDEAE2; }
   transition:text-shadow 1.2s var(--ease), color .4s;
 }
 .philo.lit .philo-sub{ color:var(--ink); }
-/* glow must breathe — reveal masks stop clipping once the tube fires */
+
 .philo.flicker .giant .w-mask,
 .philo.lit .giant .w-mask{ overflow:visible; }
 .philo.flicker .giant .w-char,
@@ -415,7 +396,6 @@ body.theme-gold .frame figcaption{ color:#EDEAE2; }
   font-size:clamp(17px, 1.7vw, 25px); line-height:1.6; color:var(--ink-soft);
 }
 
-/* ── ARCHIVE — bento ───────────────────────────────── */
 .archive{ padding-top:clamp(100px, 16vh, 190px); padding-bottom:clamp(90px, 14vh, 160px); }
 .archive h2{ max-width:var(--max); margin:0 auto clamp(40px, 7vh, 80px); }
 .archive .case-hour{ max-width:var(--max); margin-left:auto; margin-right:auto; }
@@ -441,7 +421,6 @@ body.theme-gold .frame figcaption{ color:#EDEAE2; }
 .tile-meta b{ font-weight:600; font-size:15px; }
 .tile-meta i{ font-style:normal; font-size:9px; color:rgba(237,234,226,.6); }
 
-/* ── SERVICES ──────────────────────────────────────── */
 .services{ padding-top:clamp(100px, 16vh, 190px); padding-bottom:clamp(90px, 14vh, 160px); }
 .services .case-hour, .services h2, .services-sub{ max-width:var(--max); margin-left:auto; margin-right:auto; }
 .services-sub{ margin-top:22px; color:var(--ink-soft); max-width:60ch; margin-left:auto; margin-right:auto; }
@@ -466,7 +445,6 @@ body.theme-gold .frame figcaption{ color:#EDEAE2; }
 .tier ul{ list-style:none; margin-top:auto; display:flex; flex-direction:column; gap:9px; color:var(--ink-faint); font-size:10px; }
 .tier ul li{ border-top:1px solid var(--line); padding-top:9px; }
 
-/* ── STATEMENT ─────────────────────────────────────── */
 .statement{ padding-top:clamp(100px, 16vh, 190px); padding-bottom:clamp(100px, 16vh, 190px); }
 .st-grid{
   max-width:var(--max); margin:0 auto;
@@ -488,7 +466,6 @@ body.theme-gold .frame figcaption{ color:#EDEAE2; }
 .st-scene .v{ color:var(--accent); }
 .st-scene .v::after{ content:attr(data-shown); }
 
-/* ── CLOSER ────────────────────────────────────────── */
 .closer{
   min-height:100svh; display:flex; flex-direction:column;
   align-items:center; justify-content:center; text-align:center;
@@ -514,14 +491,12 @@ body.theme-gold .frame figcaption{ color:#EDEAE2; }
   color:var(--ink-faint); border-top:1px solid var(--line);
 }
 
-/* ── scroll progress line ──────────────────────────── */
 .progress{
   position:fixed; top:0; left:0; right:0; height:2px; z-index:60;
   background:var(--accent); transform:scaleX(0); transform-origin:left;
   pointer-events:none; opacity:.85;
 }
 
-/* ── marquee — velocity-reactive ───────────────────── */
 .marquee{
   position:relative; z-index:2; overflow:hidden; padding:26px 0;
   border-top:1px solid var(--line); border-bottom:1px solid var(--line);
@@ -532,7 +507,6 @@ body.theme-gold .frame figcaption{ color:#EDEAE2; }
   color:var(--ink-soft);
 }
 
-/* ── client gallery ────────────────────────────────── */
 .gallery{
   position:fixed; inset:0; z-index:92;
   background:rgba(4,6,11,.94);
@@ -610,8 +584,6 @@ body.theme-gold .frame figcaption{ color:#EDEAE2; }
   .gal-key{ display:none; }
 }
 
-
-/* ── liquid glass — adapted from 21st.dev LiquidButton (SVG displacement + layered rims) ── */
 .btn, .pill, .gal-close, .gal-arrow, .lb-close{
   border-radius:99px;
   position:relative; isolation:isolate;
@@ -649,8 +621,6 @@ body.theme-gold .btn.ghost, body.theme-gold .pill{
     0 2px 14px rgba(0,0,0,.22);
 }
 
-
-/* ── text-legibility scrims — soft halo of bg color behind copy blocks ── */
 :root{ --scrimc: rgba(4,7,14,.52); }
 body.theme-day{ --scrimc: rgba(240,235,222,.55); }
 body.theme-gold{ --scrimc: rgba(242,200,121,.4); }
@@ -664,17 +634,29 @@ body.theme-gold{ --scrimc: rgba(242,200,121,.4); }
   transition:background .9s var(--ease);
 }
 
-/* ── weather ────────────────────────────────────────── */
 #wx{
   position:fixed; inset:0; width:100%; height:100%;
   z-index:1; pointer-events:none;
 }
+.hud-right{ display:flex; align-items:center; gap:16px; pointer-events:auto; }
 .wx-pill{
-  position:fixed; left:var(--gut); bottom:18px; z-index:50;
   cursor:pointer; border:1px solid var(--line); background:var(--surface);
-  color:var(--ink-soft);
+  color:var(--ink-soft); border-radius:99px; padding:8px 14px;
+  font-size:10px; letter-spacing:.14em;
+  transition:border-color .3s, color .3s;
 }
-.wx-pill:hover{ color:var(--ink); }
+.wx-pill:hover{ color:var(--ink); border-color:var(--accent); }
+.totop{
+  position:fixed; right:var(--gut); bottom:20px; z-index:50;
+  width:42px; height:42px; border-radius:50%;
+  border:1px solid var(--line); background:var(--surface); color:var(--ink-soft);
+  cursor:pointer; font-size:14px;
+  opacity:0; transform:translateY(12px); pointer-events:none;
+  transition:opacity .4s var(--ease), transform .4s var(--ease), border-color .3s, color .3s;
+  -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+}
+.totop.show{ opacity:.85; transform:none; pointer-events:auto; }
+.totop:hover{ color:var(--accent); border-color:var(--accent); }
 #flash{
   position:fixed; inset:0; z-index:3; pointer-events:none; opacity:0;
   background:
@@ -687,7 +669,6 @@ body.bolt-flash #flash{ animation:boltflash .42s ease-out; }
   30%{ opacity:.8; } 55%{ opacity:.15; } 100%{ opacity:0; }
 }
 
-/* ── glow cards — cursor-tracked border spotlight (21st.dev GlowCard) ── */
 .glow-card{ position:relative; }
 .glow-card::before{
   content:""; position:absolute; inset:0; border-radius:inherit; z-index:2;
@@ -709,7 +690,6 @@ body.bolt-flash #flash{ animation:boltflash .42s ease-out; }
 }
 .glow-card:hover::after{ opacity:.85; }
 
-/* ── click ripple ───────────────────────────────────── */
 .click-ripple{
   position:fixed; z-index:97; pointer-events:none;
   width:8px; height:8px; margin:-4px 0 0 -4px; border-radius:50%;
@@ -721,10 +701,34 @@ body.bolt-flash #flash{ animation:boltflash .42s ease-out; }
   100%{ transform:scale(9); opacity:0; }
 }
 
-/* ── media shield (deterrent layer) ─────────────────── */
 img, video{ -webkit-user-drag:none; user-select:none; }
 
-/* ── lightbox ──────────────────────────────────────── */
+.star-spark{
+  position:fixed; z-index:60; pointer-events:none;
+  width:3px; height:3px; margin:-1.5px; border-radius:50%;
+  background:#FFE9B8; box-shadow:0 0 8px rgba(242,188,87,.9);
+  opacity:0;
+}
+.charge-burst{
+  position:fixed; z-index:60; pointer-events:none;
+  width:12px; height:12px; margin:-6px; border-radius:50%;
+  border:2px solid var(--accent);
+  animation:chargeburst .8s cubic-bezier(.2,.7,.3,1) forwards;
+}
+@keyframes chargeburst{ to{ transform:scale(18); opacity:0; } }
+.closer-mail.charged{
+  color:#FFEFD2; border-color:var(--accent);
+  text-shadow:0 0 14px rgba(242,188,87,.5), 0 0 44px rgba(242,188,87,.22);
+  animation:mailhum 3s ease-in-out infinite;
+}
+@keyframes mailhum{
+  50%{ text-shadow:0 0 20px rgba(242,188,87,.7), 0 0 64px rgba(242,188,87,.32); }
+}
+.veil{ position:absolute; inset:0; z-index:4; }
+.rail-card::after, .gal-item::after{
+  content:""; position:absolute; inset:0; z-index:4;
+}
+
 .lightbox{
   position:fixed; inset:0; z-index:90; background:rgba(4,6,11,.92);
   -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px);
@@ -740,7 +744,6 @@ img, video{ -webkit-user-drag:none; user-select:none; }
 .lb-body{ width:min(1100px, 88vw); max-height:82vh; }
 .lb-body img{ width:100%; height:auto; max-height:82vh; object-fit:contain; }
 
-/* ── responsive ────────────────────────────────────── */
 @media (max-width: 980px){
   .case-cols{ grid-template-columns:1fr; }
   .tiers{ grid-template-columns:1fr; }
@@ -758,7 +761,6 @@ img, video{ -webkit-user-drag:none; user-select:none; }
   .hero-last{ font-size:clamp(56px, 17vw, 120px); }
 }
 
-/* reduced motion */
 @media (prefers-reduced-motion: reduce){
   .grain{ animation:none; }
   .reveal{ opacity:1 !important; transform:none !important; }

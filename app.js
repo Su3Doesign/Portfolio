@@ -1,17 +1,13 @@
-/* ═══════════════════════════════════════════════════════════
-   MERIDIAN · app.js — interaction layer
-   Lenis smooth scroll · GSAP ScrollTrigger · solar clock ·
-   split-text reveals · brand rails + gallery · cursor ·
-   velocity skew · marquees · LIGHT flicker · star-trail flag
-   ═══════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
+
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  window.scrollTo(0, 0);
 
   var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var hasGsap = typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined';
   if (hasGsap) gsap.registerPlugin(ScrollTrigger);
 
-  /* ── Lenis smooth scroll ──────────────────────────── */
   var lenis = null;
   if (!reduced && typeof Lenis !== 'undefined') {
     lenis = new Lenis({ duration: 1.45, smoothWheel: true });
@@ -24,7 +20,6 @@
     }
   }
 
-  /* anchor links via lenis */
   document.querySelectorAll('a[href^="#"]').forEach(function (a) {
     a.addEventListener('click', function (e) {
       var id = a.getAttribute('href');
@@ -36,7 +31,6 @@
     });
   });
 
-  /* ── split text ───────────────────────────────────── */
   function splitWords(el) {
     var nodes = Array.prototype.slice.call(el.childNodes);
     nodes.forEach(function (n) {
@@ -71,7 +65,6 @@
     document.querySelectorAll('[data-split-chars]').forEach(splitChars);
   }
 
-  /* ── preloader → hero intro ───────────────────────── */
   var loader = document.getElementById('loader');
   var pctEl = document.getElementById('loaderPct');
   var fillEl = document.getElementById('loaderFill');
@@ -107,7 +100,6 @@
     });
   }
 
-  /* ── generic reveals ──────────────────────────────── */
   if (hasGsap && !reduced) {
     gsap.utils.toArray('main section:not(#hero) .reveal').forEach(function (el) {
       gsap.to(el, {
@@ -115,7 +107,6 @@
         scrollTrigger: { trigger: el, start: 'top 88%' }
       });
     });
-    /* split headings reveal on scroll — words and chars */
     gsap.utils.toArray('main section:not(#hero) [data-split]').forEach(function (el) {
       gsap.to(el.querySelectorAll('.w-word'), {
         y: 0, duration: 1.15, ease: 'expo.out', stagger: 0.035,
@@ -130,7 +121,6 @@
       });
     });
 
-    /* case-title hover wave — chars bounce in sequence */
     if (window.matchMedia('(hover:hover)').matches) {
       document.querySelectorAll('[data-wave]').forEach(function (el) {
         var chars = el.querySelectorAll('.w-char');
@@ -146,7 +136,6 @@
       });
     }
 
-    /* ── LIGHT. — fluorescent tube turn-on at viewport middle ── */
     var giant = document.getElementById('giant');
     var philo = document.getElementById('philosophy');
     if (giant && philo) {
@@ -174,12 +163,10 @@
       });
     }
 
-    /* pipeline rows */
     gsap.from('#pipeline li', {
       opacity: 0, y: 34, duration: 0.9, ease: 'expo.out', stagger: 0.08,
       scrollTrigger: { trigger: '#pipeline', start: 'top 82%' }
     });
-    /* frame parallax */
     gsap.utils.toArray('.frame img, .frame video').forEach(function (m) {
       var f = m.closest('.frame'); if (!f) return;
       gsap.fromTo(m, { yPercent: -6 }, {
@@ -187,7 +174,6 @@
         scrollTrigger: { trigger: f, start: 'top bottom', end: 'bottom top', scrub: 0.6 }
       });
     });
-    /* frame clip-wipe reveal */
     gsap.utils.toArray('.frame').forEach(function (f) {
       gsap.fromTo(f,
         { clipPath: 'inset(100% 0% 0% 0%)' },
@@ -195,7 +181,6 @@
           scrollTrigger: { trigger: f, start: 'top 88%' } });
     });
 
-    /* scroll-velocity feedback */
     var velState = { v: 0 };
     if (lenis) lenis.on('scroll', function (e) {
       velState.v = gsap.utils.clamp(-80, 80, e.velocity || 0);
@@ -221,10 +206,6 @@
     document.querySelectorAll('.reveal').forEach(function (r) { r.style.opacity = 1; r.style.transform = 'none'; });
   }
 
-  /* ── manifesto — REBUILT: native position:sticky, zero pin artifacts ──
-     The section gets real document height; .mani-pin stays stuck while the
-     track translates. No pin-spacer, no transform on the section, nothing
-     for the sky's scroll math to trip on at sunrise. */
   (function () {
     var mani = document.getElementById('manifesto');
     var track = document.getElementById('maniTrack');
@@ -244,7 +225,6 @@
     });
   })();
 
-  /* ── theme switching per section ──────────────────── */
   var THEMES = { day: 'theme-day', gold: 'theme-gold' };
   function setTheme(t) {
     document.body.classList.remove('theme-day', 'theme-gold');
@@ -261,7 +241,6 @@
     });
   }
 
-  /* ── solar clock HUD + progress line ──────────────── */
   var clockEl = document.getElementById('solarClock');
   var dotEl = document.getElementById('solarDot');
   var progressBar = document.getElementById('progressBar');
@@ -311,7 +290,6 @@
   }
   requestAnimationFrame(tickClock);
 
-  /* local IST time in footer */
   var footLocal = document.getElementById('footLocal');
   if (footLocal) {
     setInterval(function () {
@@ -321,7 +299,6 @@
     }, 1000);
   }
 
-  /* ── closer clock rollover ────────────────────────── */
   var closerClock = document.getElementById('closerClock');
   if (hasGsap && closerClock) {
     ScrollTrigger.create({
@@ -337,7 +314,6 @@
     });
   }
 
-  /* ── statement scene-file typing ──────────────────── */
   var sceneFile = document.getElementById('sceneFile');
   if (sceneFile) {
     var typed = false;
@@ -363,13 +339,16 @@
     }
   }
 
-  /* ── brand rails ──────────────────────────────────── */
   function seq(prefix, from, to, ext) {
     var out = [];
     for (var i = from; i <= to; i++) out.push(prefix + i + ext);
     return out;
   }
-  /* media loader — images appear on load, videos hover-play (rails) or auto-play when current (gallery) */
+  function vseq(prefix, frm, to) {
+    var out = [];
+    for (var i = frm; i <= to; i++) out.push('assets/videos/' + prefix + i + '.mp4');
+    return out;
+  }
   function attachMedia(holder, srcPath, isGallery) {
     if (/\.mp4$/i.test(srcPath)) {
       var vid = document.createElement('video');
@@ -377,8 +356,7 @@
       vid.preload = 'metadata'; vid.draggable = false;
       vid.addEventListener('loadeddata', function () { holder.appendChild(vid); }, { once: true });
       vid.src = srcPath;
-      if (isGallery) { vid.dataset.gal = '1'; }
-      else {
+      if (!isGallery) {
         holder.addEventListener('mouseenter', function () { vid.play().catch(function () {}); });
         holder.addEventListener('mouseleave', function () { vid.pause(); });
       }
@@ -390,11 +368,6 @@
     }
   }
 
-  function vseq(prefix, frm, to) {
-    var out = [];
-    for (var i = frm; i <= to; i++) out.push('assets/videos/' + prefix + i + '.mp4');
-    return out;
-  }
   var BRANDS = [
     { name: 'Classic Partnership', brand: '#B05B22', group: 'AGENCY', role: 'Visual Design · Calendar Campaigns', files: seq('assets/images/tcp-calendarposts-', 1, 13, '.webp') },
     { name: 'Midea Canada', brand: '#E62D2D', group: 'AGENCY', role: 'Social Overlays · PWHL · Pelonis', files: seq('assets/images/midea-posts-', 1, 6, '.webp').concat(vseq('midea-overlays-', 1, 8), ['assets/images/midea-PWHL-banner.webp', 'assets/images/midea-pelonis-banner-1.webp']) },
@@ -437,7 +410,6 @@
       railsRoot.appendChild(rail);
     });
 
-    /* lazy-attempt real images when rail nears viewport */
     var io = new IntersectionObserver(function (entries) {
       entries.forEach(function (en) {
         if (!en.isIntersecting) return;
@@ -451,12 +423,10 @@
     }, { rootMargin: '300px' });
     railsRoot.querySelectorAll('.rail').forEach(function (r) { io.observe(r); });
 
-    /* kill native image ghost-drag everywhere */
     document.addEventListener('dragstart', function (e) {
       if (e.target.tagName === 'IMG') e.preventDefault();
     });
 
-    /* drag-to-scroll with momentum + click-vs-drag detection */
     railsRoot.querySelectorAll('.rail-strip').forEach(function (strip, stripIdx) {
       var down = false, startX = 0, startY = 0, startL = 0, vel = 0, lastX = 0, raf, moved = false;
       strip.addEventListener('pointerdown', function (e) {
@@ -496,7 +466,6 @@
     });
   }
 
-  /* ── client gallery — ←→ pieces, ↑↓ clients, swipe ── */
   var gal = document.getElementById('gallery');
   var galTrack = document.getElementById('galTrack');
   var galViewport = document.getElementById('galViewport');
@@ -586,7 +555,6 @@
     else if (e.key === 'ArrowUp') { e.preventDefault(); galBrandStep(-1); }
     else if (e.key === 'ArrowDown') { e.preventDefault(); galBrandStep(1); }
   });
-  /* swipe inside the gallery */
   (function () {
     var sx = 0, sy = 0, downG = false;
     galViewport.addEventListener('pointerdown', function (e) { downG = true; sx = e.clientX; sy = e.clientY; });
@@ -600,7 +568,6 @@
   })();
   window.addEventListener('resize', function () { if (galOpen) layoutGallery(false); });
 
-  /* ── sky-hover flag — star trail spawns only over open sky ── */
   window.__skyHover = false;
   window.addEventListener('pointermove', function (e) {
     var t = e.target;
@@ -610,7 +577,6 @@
     ));
   }, { passive: true });
 
-  /* ── nav hover scramble ───────────────────────────── */
   if (window.matchMedia('(hover:hover)').matches) {
     var GLYPHS = 'ABCDEFGHIKLMNOPRSTUVWX#/·';
     document.querySelectorAll('.hud-nav a').forEach(function (link) {
@@ -632,7 +598,6 @@
     });
   }
 
-  /* ── custom cursor ────────────────────────────────── */
   var dot = document.querySelector('.cur-dot'), ring = document.querySelector('.cur-ring');
   if (dot && window.matchMedia('(hover:hover)').matches) {
     var mx = -100, my = -100, rx = -100, ry = -100;
@@ -653,7 +618,6 @@
     });
   }
 
-  /* ── magnetic elements ────────────────────────────── */
   if (hasGsap && !reduced && window.matchMedia('(hover:hover)').matches) {
     document.querySelectorAll('[data-magnetic]').forEach(function (el) {
       el.addEventListener('mousemove', function (e) {
@@ -670,7 +634,6 @@
     });
   }
 
-  /* ── lightbox (archive bento) ─────────────────────── */
   var lb = document.getElementById('lightbox'), lbBody = document.getElementById('lbBody');
   document.querySelectorAll('[data-lb]').forEach(function (tile) {
     tile.addEventListener('click', function () {
@@ -686,9 +649,6 @@
   lb.addEventListener('click', function (e) { if (e.target === lb) closeLb(); });
   window.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLb(); });
 
-  /* ══ WEATHER — random per reload, click the HUD pill to change ══
-     CLEAR · RAIN · STORM. Rain/lightning live only while the sky is dark
-     (tied to the night factor the scene exposes). */
   (function () {
     var modes = ['clear', 'rain', 'storm'];
     var weights = [0.45, 0.3, 0.25];
@@ -711,7 +671,6 @@
       });
     }
 
-    /* canvas rain — cheap streaks, angled, night-gated */
     var wx = document.getElementById('wx');
     if (!wx || reduced) return;
     var ctx = wx.getContext('2d');
@@ -720,44 +679,166 @@
       wx.width = window.innerWidth * DPR2; wx.height = window.innerHeight * DPR2;
     }
     sizeWx(); window.addEventListener('resize', sizeWx);
-    function seed(n) {
+    function seedDrops(n) {
       drops = [];
       for (var i = 0; i < n; i++) drops.push({
         x: Math.random(), y: Math.random(),
-        v: 0.5 + Math.random() * 0.7,
-        l: 9 + Math.random() * 16,
-        o: 0.25 + Math.random() * 0.4
+        v: 0.35 + Math.random() * 0.95,
+        l: 7 + Math.random() * 20,
+        o: 0.18 + Math.random() * 0.45,
+        s: 0.6 + Math.random() * 0.8,
+        w: Math.random() * Math.PI * 2
       });
     }
-    seed(170);
+    seedDrops(170);
+
+    var meteorsArr = [], mNext = 3 + Math.random() * 5, mClock = 0;
+    function spawnMeteor() {
+      meteorsArr.push({
+        x: 0.15 + Math.random() * 0.75, y: Math.random() * 0.3,
+        vx: -(0.25 + Math.random() * 0.3), vy: 0.14 + Math.random() * 0.12,
+        life: 1, len: 70 + Math.random() * 70
+      });
+    }
+
     var last = performance.now();
-    (function rainLoop(now) {
-      requestAnimationFrame(rainLoop);
+    (function wxLoop(now) {
+      requestAnimationFrame(wxLoop);
       var dt = Math.min(0.05, (now - last) / 1000); last = now;
       var m = window.__weather.mode;
       var nightF = typeof window.__nightF === 'number' ? window.__nightF : 1;
-      var on = (m === 'rain' || m === 'storm') ? Math.max(0, (nightF - 0.15) / 0.85) : 0;
       ctx.clearRect(0, 0, wx.width, wx.height);
-      if (on <= 0.01) return;
-      var count = m === 'storm' ? drops.length : (drops.length * 0.6) | 0;
-      var slant = m === 'storm' ? 0.22 : 0.12;
-      ctx.lineWidth = 1 * DPR2;
-      for (var i = 0; i < count; i++) {
-        var d = drops[i];
-        d.y += d.v * dt * (m === 'storm' ? 1.5 : 1.0);
-        d.x += d.v * dt * slant;
-        if (d.y > 1.05) { d.y = -0.05; d.x = Math.random(); }
-        var px = d.x * wx.width, py = d.y * wx.height;
-        ctx.strokeStyle = 'rgba(174,194,224,' + (d.o * on * 0.7) + ')';
-        ctx.beginPath();
-        ctx.moveTo(px, py);
-        ctx.lineTo(px - d.l * slant * 4 * DPR2, py - d.l * DPR2);
-        ctx.stroke();
+
+      var rainOn = (m === 'rain' || m === 'storm') ? Math.max(0, (nightF - 0.15) / 0.85) : 0;
+      if (rainOn > 0.01) {
+        var count = m === 'storm' ? drops.length : (drops.length * 0.6) | 0;
+        var slantBase = m === 'storm' ? 0.2 : 0.1;
+        var wind = Math.sin(now * 0.0005) * 0.05;
+        ctx.lineWidth = 1 * DPR2;
+        for (var i = 0; i < count; i++) {
+          var d = drops[i];
+          var slant = slantBase * d.s + wind + Math.sin(now * 0.001 + d.w) * 0.025;
+          d.y += d.v * dt * (m === 'storm' ? 1.5 : 1.0);
+          d.x += d.v * dt * slant;
+          if (d.y > 1.05) { d.y = -0.05 - Math.random() * 0.1; d.x = Math.random(); }
+          var pxx = d.x * wx.width, pyy = d.y * wx.height;
+          ctx.strokeStyle = 'rgba(174,194,224,' + (d.o * rainOn * 0.7) + ')';
+          ctx.beginPath();
+          ctx.moveTo(pxx, pyy);
+          ctx.lineTo(pxx - d.l * slant * 4 * DPR2, pyy - d.l * DPR2);
+          ctx.stroke();
+        }
+      }
+
+      var meteorOn = m !== 'storm' && nightF > 0.55;
+      if (meteorOn) {
+        mClock += dt;
+        if (mClock >= mNext) { mClock = 0; mNext = 4 + Math.random() * 6; spawnMeteor(); }
+      }
+      for (var k = meteorsArr.length - 1; k >= 0; k--) {
+        var mt = meteorsArr[k];
+        mt.x += mt.vx * dt; mt.y += mt.vy * dt;
+        mt.life -= dt * 0.8;
+        if (mt.life <= 0) { meteorsArr.splice(k, 1); continue; }
+        var hx = mt.x * wx.width, hy = mt.y * wx.height;
+        var tx = hx + mt.len * DPR2 * 0.9, ty = hy - mt.len * DPR2 * 0.5;
+        var a = mt.life * nightF;
+        var g = ctx.createLinearGradient(hx, hy, tx, ty);
+        g.addColorStop(0, 'rgba(237,234,226,' + (a * 0.9) + ')');
+        g.addColorStop(1, 'rgba(237,234,226,0)');
+        ctx.strokeStyle = g;
+        ctx.lineWidth = 1.4 * DPR2;
+        ctx.beginPath(); ctx.moveTo(hx, hy); ctx.lineTo(tx, ty); ctx.stroke();
+        ctx.fillStyle = 'rgba(255,244,214,' + (a * 0.95) + ')';
+        ctx.beginPath(); ctx.arc(hx, hy, 1.6 * DPR2, 0, 7); ctx.fill();
       }
     })(last);
   })();
 
-  /* ══ GLOW CARDS — 21st.dev GlowCard pattern: cursor-tracked border spotlight ══ */
+  var toTop = document.getElementById('toTop');
+  if (toTop) {
+    toTop.addEventListener('click', function () {
+      if (lenis) lenis.scrollTo(0, { duration: 1.8 });
+      else window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+    setInterval(function () {
+      toTop.classList.toggle('show', window.scrollY > window.innerHeight * 1.2);
+    }, 300);
+  }
+
+  function sparkTo(cx, cy, fromR, n, dur) {
+    if (!hasGsap || reduced) return;
+    for (var i = 0; i < n; i++) {
+      (function () {
+        var s = document.createElement('span');
+        s.className = 'star-spark';
+        var ang = Math.random() * Math.PI * 2;
+        var rad = fromR * (0.6 + Math.random() * 0.8);
+        var sx = cx + Math.cos(ang) * rad, sy = cy + Math.sin(ang) * rad;
+        s.style.left = sx + 'px'; s.style.top = sy + 'px';
+        document.body.appendChild(s);
+        gsap.fromTo(s, { opacity: 0, scale: 0.4 }, {
+          opacity: 1, scale: 1, duration: 0.18,
+          onComplete: function () {
+            gsap.to(s, {
+              x: cx - sx, y: cy - sy, opacity: 0.9, scale: 0.5,
+              duration: dur * (0.7 + Math.random() * 0.6),
+              ease: 'power3.in',
+              onComplete: function () { s.remove(); }
+            });
+          }
+        });
+      })();
+    }
+  }
+
+  var mailBtn = document.querySelector('.closer-mail');
+  if (mailBtn && hasGsap) {
+    var chargedFlag = false;
+    ScrollTrigger.create({
+      trigger: '#contact', start: 'top 55%', once: true,
+      onEnter: function () {
+        if (chargedFlag || reduced) { mailBtn.classList.add('charged'); return; }
+        chargedFlag = true;
+        var burst = 3, b = 0;
+        var iv = setInterval(function () {
+          var r = mailBtn.getBoundingClientRect();
+          var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+          sparkTo(cx, cy, Math.min(window.innerWidth, window.innerHeight) * 0.45, 16, 0.9);
+          if (++b >= burst) clearInterval(iv);
+        }, 420);
+        setTimeout(function () {
+          mailBtn.classList.add('charged');
+          var r = mailBtn.getBoundingClientRect();
+          var ringEl = document.createElement('span');
+          ringEl.className = 'charge-burst';
+          ringEl.style.left = (r.left + r.width / 2) + 'px';
+          ringEl.style.top = (r.top + r.height / 2) + 'px';
+          document.body.appendChild(ringEl);
+          ringEl.addEventListener('animationend', function () { ringEl.remove(); });
+        }, 1700);
+      }
+    });
+    if (window.matchMedia('(hover:hover)').matches) {
+      mailBtn.addEventListener('mouseenter', function () {
+        var r = mailBtn.getBoundingClientRect();
+        sparkTo(r.left + r.width / 2, r.top + r.height / 2, 140, 8, 0.5);
+      });
+    }
+  }
+
+  if (window.matchMedia('(hover:hover)').matches && hasGsap && !reduced) {
+    document.querySelectorAll('.btn').forEach(function (b) {
+      var busy = false;
+      b.addEventListener('mouseenter', function () {
+        if (busy) return; busy = true;
+        var r = b.getBoundingClientRect();
+        sparkTo(r.left + r.width / 2, r.top + r.height / 2, 70, 5, 0.4);
+        setTimeout(function () { busy = false; }, 600);
+      });
+    });
+  }
+
   if (window.matchMedia('(hover:hover)').matches) {
     document.querySelectorAll('.tile, .tier').forEach(function (card) {
       card.classList.add('glow-card');
@@ -769,10 +850,9 @@
     });
   }
 
-  /* ══ CLICK RIPPLE — subtle ring at every click ══ */
   if (!reduced) {
     document.addEventListener('click', function (e) {
-      if (e.clientX === 0 && e.clientY === 0) return;     /* keyboard "clicks" */
+      if (e.clientX === 0 && e.clientY === 0) return;
       var r = document.createElement('span');
       r.className = 'click-ripple';
       r.style.left = e.clientX + 'px';
@@ -782,8 +862,12 @@
     }, { passive: true });
   }
 
-  /* ══ MEDIA SHIELD — deterrents only (see README for the honest truth) ══ */
   document.addEventListener('contextmenu', function (e) {
-    if (e.target.closest('img, video, canvas, .frame, .tile, .rail-card, .gal-item')) e.preventDefault();
+    if (e.target.closest('img, video, canvas, .frame, .tile, .rail-card, .gal-item, .veil')) e.preventDefault();
+  });
+  document.querySelectorAll('.frame, .tile').forEach(function (el) {
+    var v = document.createElement('span');
+    v.className = 'veil';
+    el.appendChild(v);
   });
 })();

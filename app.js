@@ -53,14 +53,21 @@
     });
   }
   function splitChars(el) {
-    var text = el.textContent; el.textContent = '';
-    text.split('').forEach(function (ch) {
-      if (ch === ' ') { el.appendChild(document.createTextNode(' ')); return; }
-      var mask = document.createElement('span');
-      mask.className = 'w-mask';
-      var c = document.createElement('span');
-      c.className = 'w-char'; c.textContent = ch;
-      mask.appendChild(c); el.appendChild(mask);
+    var words = el.textContent.split(' ');
+    el.textContent = '';
+    words.forEach(function (word, wi) {
+      if (wi) el.appendChild(document.createTextNode(' '));
+      if (!word) return;
+      var grp = document.createElement('span');
+      grp.className = 'w-wgrp';
+      word.split('').forEach(function (ch) {
+        var mask = document.createElement('span');
+        mask.className = 'w-mask';
+        var c = document.createElement('span');
+        c.className = 'w-char'; c.textContent = ch;
+        mask.appendChild(c); grp.appendChild(mask);
+      });
+      el.appendChild(grp);
     });
   }
   if (!reduced && hasGsap) {
@@ -672,9 +679,11 @@
 
   (function () {
     var modes = ['clear', 'rain', 'storm'];
-    var weights = [0.45, 0.3, 0.25];
-    var roll = Math.random(), acc = 0, mode = 'clear';
-    for (var i = 0; i < modes.length; i++) { acc += weights[i]; if (roll <= acc) { mode = modes[i]; break; } }
+    var last = null;
+    try { last = sessionStorage.getItem('wxlast'); } catch (e) {}
+    var pool = modes.filter(function (m) { return m !== last; });
+    var mode = pool[Math.floor(Math.random() * pool.length)];
+    try { sessionStorage.setItem('wxlast', mode); } catch (e) {}
     window.__weather = { mode: mode };
 
     var pill = document.getElementById('wxPill');

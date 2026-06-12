@@ -284,13 +284,14 @@
     transparent: true, depthTest: true, depthWrite: false, blending: THREE.AdditiveBlending,
     uniforms: {
       iRes: { value: new THREE.Vector2(1, 1) },
-      uT: { value: 0 }, uA: { value: 0 }, uHue: { value: 200.0 }
+      uT: { value: 0 }, uA: { value: 0 }, uHue: { value: 200.0 },
+      uMouse: { value: new THREE.Vector2(99, 99) }
     },
     vertexShader:
       'void main(){ gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
     fragmentShader:
       'precision highp float;' +
-      'uniform vec2 iRes; uniform float uT, uA, uHue;' +
+      'uniform vec2 iRes; uniform float uT, uA, uHue; uniform vec2 uMouse;' +
       'vec3 hsv2rgb(vec3 c){ vec3 rgb = clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0,0.0,1.0); return c.z*mix(vec3(1.0),rgb,c.y); }' +
       'float hash11(float p){ p = fract(p*.1031); p *= p+33.33; p *= p+p; return fract(p); }' +
       'float hash12(vec2 p){ vec3 p3 = fract(vec3(p.xyx)*.1031); p3 += dot(p3,p3.yzx+33.33); return fract((p3.x+p3.y)*p3.z); }' +
@@ -304,6 +305,9 @@
       ' vec2 uv = gl_FragCoord.xy / iRes;' +
       ' uv = 2.0*uv - 1.0;' +
       ' uv.x *= iRes.x / iRes.y;' +
+      ' vec2 mrel = uv - uMouse;' +
+      ' float md = max(length(mrel), 0.0001);' +
+      ' uv -= (mrel / md) * 0.38 * exp(-md * md * 5.0);' +
       ' uv += 2.0 * fbm(uv * 2.6 + 0.8 * uT * 0.5) - 1.0;' +
       ' vec3 base = hsv2rgb(vec3(uHue/360.0, 0.7, 0.8));' +
       ' vec3 col = vec3(0.0);' +
@@ -439,6 +443,8 @@
       stormFS.uniforms.uA.value = stormA * 0.9;
       stormFS.uniforms.uHue.value = hue;
       stormFS.uniforms.iRes.value.set(renderer.domElement.width, renderer.domElement.height);
+      var asp = window.innerWidth / window.innerHeight;
+      stormFS.uniforms.uMouse.value.set(tpx * 2 * asp, -tpy * 2);
       starMat.uniforms.uA.value = cur.star * (1 - stormA * 0.8);
       skyMat.uniforms.uTop.value.multiplyScalar(1 - stormA * 0.55);
       skyMat.uniforms.uHor.value.multiplyScalar(1 - stormA * 0.45);

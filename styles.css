@@ -172,6 +172,7 @@ body:not(.theme-day):not(.theme-gold) .btn.solid{ color:#0A0E16; }
   padding-bottom:.12em; margin-bottom:-.12em;
 }
 .w-word{ display:inline-block; transform:translateY(115%); }
+.w-wgrp{ display:inline-block; white-space:nowrap; }
 .w-char{ display:inline-block; transform:translateY(118%); }
 
 .reveal{ opacity:0; transform:translateY(28px); }
@@ -358,10 +359,9 @@ body.theme-gold .frame figcaption{ color:#EDEAE2; }
   min-height:100svh; display:flex; flex-direction:column;
   align-items:center; justify-content:center; text-align:center;
   padding-top:14vh; padding-bottom:14vh;
-  overflow:hidden;
 }
 .philo-halo{
-  position:absolute; left:50%; top:48%; width:min(120vw, 1400px); aspect-ratio:1.6;
+  position:absolute; left:50%; top:58%; width:min(150vw, 1800px); aspect-ratio:1.45;
   transform:translate(-50%,-50%);
   background:radial-gradient(closest-side, rgba(255,222,150,.26), rgba(255,190,90,.09) 42%, rgba(255,170,70,.03) 62%, transparent 78%);
   opacity:0; transition:opacity .25s; pointer-events:none;
@@ -621,18 +621,6 @@ body.theme-gold .btn.ghost, body.theme-gold .pill{
     0 2px 14px rgba(0,0,0,.22);
 }
 
-:root{ --scrimc: rgba(4,7,14,.52); }
-body.theme-day{ --scrimc: rgba(240,235,222,.55); }
-body.theme-gold{ --scrimc: rgba(242,200,121,.4); }
-.case-head, .proc-head, .clients-head, .st-prose, .services-sub, .philo-sub{
-  position:relative; z-index:0;
-}
-.case-head::before, .proc-head::before, .clients-head::before, .st-prose::before{
-  content:""; position:absolute; inset:-6% -5%; z-index:-1;
-  background:radial-gradient(ellipse closest-side, var(--scrimc), transparent 78%);
-  pointer-events:none;
-  transition:background .9s var(--ease);
-}
 
 #wx{
   position:fixed; inset:0; width:100%; height:100%;
@@ -799,7 +787,7 @@ body.loading{ overflow:hidden; height:100vh; }
   .totop{ right:14px; bottom:14px; width:38px; height:38px; }
   .hero{ padding-top:18vh; }
   .hero-line{ font-size:16px; }
-  .case-title{ font-size:clamp(40px, 12vw, 80px); }
+  .case-title{ font-size:clamp(32px, 10vw, 64px); }
   .case-jp{ font-size:14px; }
   .giant{ font-size:clamp(56px, 18vw, 120px); }
   .philo-sub{ font-size:15px; }
@@ -808,7 +796,7 @@ body.loading{ overflow:hidden; height:100vh; }
   .gal-top{ padding-top:18px; }
   .gal-bottom{ padding-bottom:16px; }
   .tiers{ gap:14px; }
-  .closer-mail{ font-size:clamp(18px, 6.4vw, 30px); word-break:break-all; }
+  .closer-mail{ font-size:clamp(15px, 5vw, 26px); letter-spacing:0; }
   .foot{ flex-direction:column; gap:6px; align-items:center; text-align:center; }
   .marquee{ padding:18px 0; }
   .st-scene pre{ font-size:10px; line-height:1.9; }

@@ -390,5 +390,36 @@ function phFail(el){
 </script>
 <script src="scene.js" defer></script>
 <script src="app.js" defer></script>
+<script>
+// Copy email to clipboard on click, then open mail client; show brief feedback
+(function(){
+  var mail = document.getElementById('closerMail');
+  if(!mail) return;
+  var href = mail.getAttribute('href') || '';
+  var email = href.replace(/^mailto:/i, '') || mail.textContent.trim();
+  mail.addEventListener('click', function(e){
+    e.preventDefault();
+    function doOpen(){ window.location.href = 'mailto:' + email; }
+    // copy
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(email).catch(function(){}).then(function(){
+        var old = mail.innerText;
+        mail.innerText = 'COPIED — ' + email;
+        setTimeout(function(){ mail.innerText = old; doOpen(); }, 1100);
+      });
+    } else {
+      var ta = document.createElement('textarea');
+      ta.value = email; ta.style.position = 'fixed'; ta.style.left = '-9999px';
+      document.body.appendChild(ta); ta.select();
+      try { document.execCommand('copy'); }
+      catch(_){}
+      document.body.removeChild(ta);
+      var old = mail.innerText;
+      mail.innerText = 'COPIED — ' + email;
+      setTimeout(function(){ mail.innerText = old; doOpen(); }, 1100);
+    }
+  });
+})();
+</script>
 </body>
 </html>

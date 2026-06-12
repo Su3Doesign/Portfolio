@@ -221,22 +221,28 @@
     document.querySelectorAll('.reveal').forEach(function (r) { r.style.opacity = 1; r.style.transform = 'none'; });
   }
 
-  /* ── manifesto horizontal pin ─────────────────────── */
-  if (hasGsap && !reduced) {
+  /* ── manifesto — REBUILT: native position:sticky, zero pin artifacts ──
+     The section gets real document height; .mani-pin stays stuck while the
+     track translates. No pin-spacer, no transform on the section, nothing
+     for the sky's scroll math to trip on at sunrise. */
+  (function () {
+    var mani = document.getElementById('manifesto');
     var track = document.getElementById('maniTrack');
-    if (track) {
-      var dist = function () { return Math.max(0, track.scrollWidth - window.innerWidth); };
-      gsap.to(track, {
-        x: function () { return -dist(); },
-        ease: 'none',
-        scrollTrigger: {
-          trigger: '#manifesto', start: 'top top',
-          end: function () { return '+=' + (dist() + window.innerHeight * 0.35); },
-          scrub: 1, pin: true, anticipatePin: 1, invalidateOnRefresh: true
-        }
-      });
-    }
-  }
+    if (!mani || !track) return;
+    if (reduced || !hasGsap) { mani.style.height = 'auto'; return; }
+    function dist() { return Math.max(0, track.scrollWidth - window.innerWidth); }
+    function size() { mani.style.height = (window.innerHeight + dist() + window.innerHeight * 0.35) + 'px'; }
+    size();
+    window.addEventListener('resize', size);
+    gsap.to(track, {
+      x: function () { return -dist(); },
+      ease: 'none',
+      scrollTrigger: {
+        trigger: mani, start: 'top top', end: 'bottom bottom',
+        scrub: 1, invalidateOnRefresh: true
+      }
+    });
+  })();
 
   /* ── theme switching per section ──────────────────── */
   var THEMES = { day: 'theme-day', gold: 'theme-gold' };
@@ -679,4 +685,105 @@
   document.getElementById('lbClose').addEventListener('click', closeLb);
   lb.addEventListener('click', function (e) { if (e.target === lb) closeLb(); });
   window.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeLb(); });
+
+  /* ══ WEATHER — random per reload, click the HUD pill to change ══
+     CLEAR · RAIN · STORM. Rain/lightning live only while the sky is dark
+     (tied to the night factor the scene exposes). */
+  (function () {
+    var modes = ['clear', 'rain', 'storm'];
+    var weights = [0.45, 0.3, 0.25];
+    var roll = Math.random(), acc = 0, mode = 'clear';
+    for (var i = 0; i < modes.length; i++) { acc += weights[i]; if (roll <= acc) { mode = modes[i]; break; } }
+    window.__weather = { mode: mode };
+
+    var pill = document.getElementById('wxPill');
+    var label = document.getElementById('wxLabel');
+    function paint() {
+      var icons = { clear: '✦', rain: '☂', storm: '⚡' };
+      if (label) label.textContent = icons[window.__weather.mode] + ' ' + window.__weather.mode.toUpperCase();
+    }
+    if (pill) {
+      paint();
+      pill.addEventListener('click', function () {
+        var idx = (modes.indexOf(window.__weather.mode) + 1) % modes.length;
+        window.__weather.mode = modes[idx];
+        paint();
+      });
+    }
+
+    /* canvas rain — cheap streaks, angled, night-gated */
+    var wx = document.getElementById('wx');
+    if (!wx || reduced) return;
+    var ctx = wx.getContext('2d');
+    var drops = [], DPR2 = Math.min(window.devicePixelRatio || 1, 1.5);
+    function sizeWx() {
+      wx.width = window.innerWidth * DPR2; wx.height = window.innerHeight * DPR2;
+    }
+    sizeWx(); window.addEventListener('resize', sizeWx);
+    function seed(n) {
+      drops = [];
+      for (var i = 0; i < n; i++) drops.push({
+        x: Math.random(), y: Math.random(),
+        v: 0.5 + Math.random() * 0.7,
+        l: 9 + Math.random() * 16,
+        o: 0.25 + Math.random() * 0.4
+      });
+    }
+    seed(170);
+    var last = performance.now();
+    (function rainLoop(now) {
+      requestAnimationFrame(rainLoop);
+      var dt = Math.min(0.05, (now - last) / 1000); last = now;
+      var m = window.__weather.mode;
+      var nightF = typeof window.__nightF === 'number' ? window.__nightF : 1;
+      var on = (m === 'rain' || m === 'storm') ? Math.max(0, (nightF - 0.15) / 0.85) : 0;
+      ctx.clearRect(0, 0, wx.width, wx.height);
+      if (on <= 0.01) return;
+      var count = m === 'storm' ? drops.length : (drops.length * 0.6) | 0;
+      var slant = m === 'storm' ? 0.22 : 0.12;
+      ctx.lineWidth = 1 * DPR2;
+      for (var i = 0; i < count; i++) {
+        var d = drops[i];
+        d.y += d.v * dt * (m === 'storm' ? 1.5 : 1.0);
+        d.x += d.v * dt * slant;
+        if (d.y > 1.05) { d.y = -0.05; d.x = Math.random(); }
+        var px = d.x * wx.width, py = d.y * wx.height;
+        ctx.strokeStyle = 'rgba(174,194,224,' + (d.o * on * 0.7) + ')';
+        ctx.beginPath();
+        ctx.moveTo(px, py);
+        ctx.lineTo(px - d.l * slant * 4 * DPR2, py - d.l * DPR2);
+        ctx.stroke();
+      }
+    })(last);
+  })();
+
+  /* ══ GLOW CARDS — 21st.dev GlowCard pattern: cursor-tracked border spotlight ══ */
+  if (window.matchMedia('(hover:hover)').matches) {
+    document.querySelectorAll('.tile, .tier').forEach(function (card) {
+      card.classList.add('glow-card');
+      card.addEventListener('pointermove', function (e) {
+        var r = card.getBoundingClientRect();
+        card.style.setProperty('--gx', ((e.clientX - r.left) / r.width * 100).toFixed(2) + '%');
+        card.style.setProperty('--gy', ((e.clientY - r.top) / r.height * 100).toFixed(2) + '%');
+      });
+    });
+  }
+
+  /* ══ CLICK RIPPLE — subtle ring at every click ══ */
+  if (!reduced) {
+    document.addEventListener('click', function (e) {
+      if (e.clientX === 0 && e.clientY === 0) return;     /* keyboard "clicks" */
+      var r = document.createElement('span');
+      r.className = 'click-ripple';
+      r.style.left = e.clientX + 'px';
+      r.style.top = e.clientY + 'px';
+      document.body.appendChild(r);
+      r.addEventListener('animationend', function () { r.remove(); });
+    }, { passive: true });
+  }
+
+  /* ══ MEDIA SHIELD — deterrents only (see README for the honest truth) ══ */
+  document.addEventListener('contextmenu', function (e) {
+    if (e.target.closest('img, video, canvas, .frame, .tile, .rail-card, .gal-item')) e.preventDefault();
+  });
 })();

@@ -50,3 +50,32 @@ Every image/video slot points at the **same paths your previous build used**. Cr
 ## Accessibility / fallbacks
 
 `prefers-reduced-motion` disables smooth scroll, pins, and split-text animation. If WebGL or a CDN fails, content remains fully readable on the dark base. Mobile gets the same scene at capped pixel ratio; rails become native swipe.
+
+## Weather
+
+Each visit rolls a random weather condition — CLEAR / RAIN / STORM — and a pill in the bottom-left corner lets visitors change it. Rain and lightning only exist while the sky is dark (they fade out automatically in the daylight sections). Storm bolts use a slowed fbm lightning shader with a synced screen flash, roughly every 6–15 seconds.
+
+## Security — the honest version
+
+Your site is a **static site on GitHub Pages**. Important facts:
+
+1. **There is no database.** Nothing to breach — the site has no backend, no logins, no stored data. URL-based attacks have no target.
+2. **Everything the browser shows, the browser has already downloaded.** Any image/video a visitor sees is on their machine. No JavaScript can truly prevent saving it — DevTools, the Network tab, screenshots, and screen recording always work. Anyone who claims otherwise is selling fake locks.
+
+What this build DOES include (deterrents that stop 95% of casual copying):
+- Right-click is blocked on all images, videos and canvases
+- Native image drag-out is blocked; media is unselectable
+
+What you should do from your end, because it actually works:
+- **Upload web-resolution copies only** (1600–2000px, WebP q75–80). Keep your 4K originals offline. This is the single most effective protection — thieves only get a degraded copy.
+- **Watermark hero renders subtly** (small signature in a corner, or a faint diagonal in the texture detail).
+- Keep your name in image **metadata** (EXIF/XMP copyright fields survive most downloads).
+- For NDA client work, show **crops or process shots**, never full deliverables (you already planned this).
+- GitHub repo: if the repo is public, the source is public — that's normal for portfolio sites and not a risk. Make it private and Pages still serves the built site.
+
+## Bug-fix log (latest pass)
+
+- Sunrise stutter at the horizontal section: the GSAP pin (`anticipatePin`) caused a frame jump exactly at the pin boundary. The manifesto was rebuilt on native `position: sticky` — no pin, no spacer, no jump.
+- Aurora no longer crops at its horizontal ends (wider plane + edge dissolve).
+- LIGHT. bloom dimmed ~45% and its halo softened.
+- Soft scrims now sit behind all copy blocks so text stays readable over bright sky moments.

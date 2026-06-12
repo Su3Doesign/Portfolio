@@ -218,7 +218,10 @@ body:not(.theme-day):not(.theme-gold) .btn.solid{ color:#0A0E16; }
 
 /* ── MANIFESTO — pinned horizontal ─────────────────── */
 .mani{ padding:0; }
-.mani-pin{ height:100svh; display:flex; align-items:center; overflow:hidden; }
+.mani-pin{
+  position:sticky; top:0;
+  height:100svh; display:flex; align-items:center; overflow:hidden;
+}
 .mani-track{
   display:flex; gap:clamp(60px, 10vw, 180px);
   padding:0 var(--gut); will-change:transform;
@@ -379,7 +382,7 @@ body.theme-gold .frame figcaption{ color:#EDEAE2; }
 .philo-halo{
   position:absolute; left:50%; top:48%; width:min(120vw, 1400px); aspect-ratio:1.6;
   transform:translate(-50%,-50%);
-  background:radial-gradient(closest-side, rgba(255,222,150,.42), rgba(255,190,90,.14) 42%, rgba(255,170,70,.05) 62%, transparent 78%);
+  background:radial-gradient(closest-side, rgba(255,222,150,.26), rgba(255,190,90,.09) 42%, rgba(255,170,70,.03) 62%, transparent 78%);
   opacity:0; transition:opacity .25s; pointer-events:none;
   mix-blend-mode:screen;
   filter:blur(28px);
@@ -392,13 +395,13 @@ body.theme-gold .frame figcaption{ color:#EDEAE2; }
   color:color-mix(in srgb, var(--ink) 72%, transparent);
   transition:none;
 }
-.philo.flicker .giant{ color:#FFF6DF;
-  text-shadow:0 0 14px rgba(255,225,160,.85), 0 0 54px rgba(255,190,95,.55), 0 0 130px rgba(255,160,60,.4);
+.philo.flicker .giant{ color:#FFEFD2;
+  text-shadow:0 0 12px rgba(255,225,160,.45), 0 0 44px rgba(255,190,95,.28), 0 0 110px rgba(255,160,60,.18);
 }
 .philo.lit .giant{
-  color:#FFF6DF;
-  text-shadow:0 0 14px rgba(255,225,160,.9), 0 0 54px rgba(255,190,95,.6),
-              0 0 130px rgba(255,160,60,.45), 0 0 260px rgba(255,140,40,.3);
+  color:#FFEFD2;
+  text-shadow:0 0 12px rgba(255,225,160,.5), 0 0 44px rgba(255,190,95,.32),
+              0 0 110px rgba(255,160,60,.2);
   transition:text-shadow 1.2s var(--ease), color .4s;
 }
 .philo.lit .philo-sub{ color:var(--ink); }
@@ -645,6 +648,81 @@ body.theme-gold .btn.ghost, body.theme-gold .pill{
     0 0 18px rgba(242,188,87,.25),
     0 2px 14px rgba(0,0,0,.22);
 }
+
+
+/* ── text-legibility scrims — soft halo of bg color behind copy blocks ── */
+:root{ --scrimc: rgba(4,7,14,.52); }
+body.theme-day{ --scrimc: rgba(240,235,222,.55); }
+body.theme-gold{ --scrimc: rgba(242,200,121,.4); }
+.case-head, .proc-head, .clients-head, .st-prose, .services-sub, .philo-sub{
+  position:relative; z-index:0;
+}
+.case-head::before, .proc-head::before, .clients-head::before, .st-prose::before{
+  content:""; position:absolute; inset:-6% -5%; z-index:-1;
+  background:radial-gradient(ellipse closest-side, var(--scrimc), transparent 78%);
+  pointer-events:none;
+  transition:background .9s var(--ease);
+}
+
+/* ── weather ────────────────────────────────────────── */
+#wx{
+  position:fixed; inset:0; width:100%; height:100%;
+  z-index:1; pointer-events:none;
+}
+.wx-pill{
+  position:fixed; left:var(--gut); bottom:18px; z-index:50;
+  cursor:pointer; border:1px solid var(--line); background:var(--surface);
+  color:var(--ink-soft);
+}
+.wx-pill:hover{ color:var(--ink); }
+#flash{
+  position:fixed; inset:0; z-index:3; pointer-events:none; opacity:0;
+  background:
+    radial-gradient(ellipse at 60% 0%, rgba(205,215,255,.5), transparent 55%),
+    rgba(190,200,235,.18);
+}
+body.bolt-flash #flash{ animation:boltflash .42s ease-out; }
+@keyframes boltflash{
+  0%{ opacity:0; } 8%{ opacity:1; } 18%{ opacity:.25; }
+  30%{ opacity:.8; } 55%{ opacity:.15; } 100%{ opacity:0; }
+}
+
+/* ── glow cards — cursor-tracked border spotlight (21st.dev GlowCard) ── */
+.glow-card{ position:relative; }
+.glow-card::before{
+  content:""; position:absolute; inset:0; border-radius:inherit; z-index:2;
+  background:radial-gradient(230px circle at var(--gx,50%) var(--gy,50%),
+             color-mix(in srgb, var(--accent) 13%, transparent), transparent 65%);
+  opacity:0; transition:opacity .35s; pointer-events:none;
+}
+.glow-card:hover::before{ opacity:1; }
+.glow-card::after{
+  content:""; position:absolute; inset:-1px; border-radius:inherit; z-index:2;
+  padding:1px;
+  background:radial-gradient(190px circle at var(--gx,50%) var(--gy,50%),
+             var(--accent), transparent 72%);
+  -webkit-mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite:xor;
+          mask:linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          mask-composite:exclude;
+  opacity:0; transition:opacity .35s; pointer-events:none;
+}
+.glow-card:hover::after{ opacity:.85; }
+
+/* ── click ripple ───────────────────────────────────── */
+.click-ripple{
+  position:fixed; z-index:97; pointer-events:none;
+  width:8px; height:8px; margin:-4px 0 0 -4px; border-radius:50%;
+  border:1px solid var(--accent);
+  animation:ripple .55s cubic-bezier(.2,.6,.3,1) forwards;
+}
+@keyframes ripple{
+  0%{ transform:scale(.6); opacity:.7; }
+  100%{ transform:scale(9); opacity:0; }
+}
+
+/* ── media shield (deterrent layer) ─────────────────── */
+img, video{ -webkit-user-drag:none; user-select:none; }
 
 /* ── lightbox ──────────────────────────────────────── */
 .lightbox{

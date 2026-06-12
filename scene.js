@@ -282,14 +282,67 @@
       ' float g = 0.034 / abs(p.y + sin((gx + uT) * xS) * yS);' +
       ' float b = 0.030 / abs(p.y + sin((bx + uT) * xS) * yS);' +
       ' vec3 col = vec3(r * 0.45, g * 0.85, b * 0.80);' +          /* polar green-teal cast */
-      ' float fade = (1.0 - abs(p.y)) * (1.0 - abs(p.x) * 0.65);' +
+      ' float fade = (1.0 - abs(p.y)) * smoothstep(1.0, 0.45, abs(p.x));' +
       ' float lum = (col.r + col.g + col.b);' +
       ' gl_FragColor = vec4(col, min(1.0, lum) * fade * uA); }'
   });
-  var aurora = new THREE.Mesh(new THREE.PlaneGeometry(300, 70), auroraMat);
-  aurora.position.set(0, 42, -150);
-  aurora.rotation.z = -0.06;
+  var aurora = new THREE.Mesh(new THREE.PlaneGeometry(520, 90), auroraMat);
+  aurora.position.set(0, 46, -152);
+  aurora.rotation.z = -0.05;
   scene.add(aurora);
+
+  /* ── storm lightning — adapted from the user's Hero-Odyssey shader (fbm bolt), slowed, burst-only ── */
+  var boltMat = new THREE.ShaderMaterial({
+    transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    uniforms: { uT: { value: 0 }, uA: { value: 0 }, uHue: { value: 0.62 }, uSeed: { value: 0 } },
+    vertexShader:
+      'varying vec2 vUv; void main(){ vUv = uv;' +
+      ' gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }',
+    fragmentShader:
+      'precision mediump float; uniform float uT, uA, uHue, uSeed; varying vec2 vUv;' +
+      'vec3 hsv2rgb(vec3 c){ vec3 rgb = clamp(abs(mod(c.x*6.0+vec3(0.0,4.0,2.0),6.0)-3.0)-1.0,0.0,1.0); return c.z*mix(vec3(1.0),rgb,c.y); }' +
+      'float hash12(vec2 p){ vec3 p3 = fract(vec3(p.xyx)*.1031); p3 += dot(p3,p3.yzx+33.33); return fract((p3.x+p3.y)*p3.z); }' +
+      'mat2 rot(float t){ float c=cos(t); float s=sin(t); return mat2(c,-s,s,c); }' +
+      'float noise(vec2 p){ vec2 ip=floor(p); vec2 fp=fract(p);' +
+      ' float a=hash12(ip); float b=hash12(ip+vec2(1.0,0.0)); float c=hash12(ip+vec2(0.0,1.0)); float d=hash12(ip+vec2(1.0,1.0));' +
+      ' vec2 t=smoothstep(0.0,1.0,fp); return mix(mix(a,b,t.x),mix(c,d,t.x),t.y); }' +
+      'float fbm(vec2 p){ float v=0.0; float amp=0.5;' +
+      ' for(int i=0;i<6;i++){ v+=amp*noise(p); p*=rot(0.45); p*=2.0; amp*=0.5; } return v; }' +
+      'void main(){' +
+      ' vec2 uv = vUv * 2.0 - 1.0;' +
+      ' uv.x *= 2.4;' +
+      ' uv += 2.0 * fbm(uv * 1.6 + uSeed + 0.32 * uT) - 1.0;' +      /* slow drift */
+      ' float dist = abs(uv.x);' +
+      ' vec3 base = hsv2rgb(vec3(uHue, 0.55, 0.85));' +
+      ' vec3 col = base * (0.05 / max(dist, 0.015));' +
+      ' float vfade = smoothstep(1.0, 0.2, abs(vUv.y * 2.0 - 1.0));' +
+      ' float lum = min(1.0, col.r + col.g + col.b);' +
+      ' gl_FragColor = vec4(col, lum * vfade * uA); }'
+  });
+  var bolt = new THREE.Mesh(new THREE.PlaneGeometry(90, 95), boltMat);
+  bolt.position.set(18, 30, -148);
+  bolt.visible = false;
+  scene.add(bolt);
+
+  var boltEnv = 0, boltNext = 6 + Math.random() * 8, boltClock = 0;
+  function maybeBolt(dt, nightF) {
+    var wx = window.__weather || {};
+    if (wx.mode !== 'storm' || nightF < 0.35) { boltEnv = Math.max(0, boltEnv - dt * 3); bolt.visible = boltEnv > 0.01; boltMat.uniforms.uA.value = boltEnv * 0.85; return; }
+    boltClock += dt;
+    if (boltClock >= boltNext) {
+      boltClock = 0; boltNext = 6 + Math.random() * 9;
+      boltEnv = 1;
+      boltMat.uniforms.uSeed.value = Math.random() * 40.0;
+      bolt.position.x = -30 + Math.random() * 60;
+      boltMat.uniforms.uHue.value = 0.58 + Math.random() * 0.10;     /* steel blue → violet */
+      document.body.classList.add('bolt-flash');
+      setTimeout(function () { document.body.classList.remove('bolt-flash'); }, 420);
+    }
+    boltEnv = Math.max(0, boltEnv - dt * 1.8);                        /* ~0.55s decay */
+    var flick = boltEnv > 0 ? (0.6 + 0.4 * Math.sin(boltClock * 90.0)) : 0;
+    bolt.visible = boltEnv > 0.01;
+    boltMat.uniforms.uA.value = boltEnv * flick * 0.85;
+  }
 
   /* lights */
   var sunLight = new THREE.DirectionalLight(0xFFD9A0, 0.0);
@@ -318,6 +371,7 @@
     var t = scrollT();
     dayT += (t - dayT) * 0.06;
     window.__dayT = dayT;
+    window.__nightF = cur.star;
 
     samplePalette(dayT, cur);
 
@@ -383,7 +437,9 @@
       camera.lookAt(0, 1.4 + el * 6, -40);
     }
 
-    clock.getDelta();
+    var dt = clock.getDelta();
+    boltMat.uniforms.uT.value = clock.elapsedTime;
+    maybeBolt(dt, cur.star);
     renderer.render(scene, camera);
     requestAnimationFrame(frame);
   }

@@ -34,6 +34,10 @@ body.theme-gold{
 
 *{ margin:0; padding:0; box-sizing:border-box; }
 html{ scroll-behavior:auto; }
+html, body{ max-width:100%; overflow-x:hidden; }
+@supports (overflow-x: clip){
+  html, body{ overflow-x:clip; }
+}
 html.lenis, html.lenis body{ height:auto; }
 .lenis.lenis-smooth{ scroll-behavior:auto !important; }
 
@@ -41,7 +45,6 @@ body{
   font-family:'Space Grotesk', system-ui, sans-serif;
   color:var(--ink);
   background:#05080F;
-  overflow-x:hidden;
   -webkit-font-smoothing:antialiased;
   transition: color .9s var(--ease);
 }
